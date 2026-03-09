@@ -262,6 +262,35 @@
           }
         },
         {
+          "name": "Query Regulations (Live Search & Stocks)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What is the latest news regarding trade in Indonesia and what is the current stock price of BBCA.JK?\",\n  \"user_id\": \"bintang_msme_001\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/trade-ai/query",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "trade-ai",
+                "query"
+              ]
+            }
+          }
+        },
+        {
           "name": "Generate Compliance Document",
           "request": {
             "method": "POST",
