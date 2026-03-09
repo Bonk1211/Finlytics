@@ -1,65 +1,209 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import {
+  DollarSign,
+  CreditCard,
+  Globe,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  ShieldCheck,
+  FileText,
+  BarChart3,
+} from "lucide-react";
+import MetricCard from "@/components/metric-card";
+import ChartCard from "@/components/chart-card";
+import AIChat from "@/components/ai-chat";
+
+// ── Mock data for dashboard ──
+const revenueData = [
+  { name: "Jul", value: 12400 },
+  { name: "Aug", value: 14800 },
+  { name: "Sep", value: 13200 },
+  { name: "Oct", value: 16700 },
+  { name: "Nov", value: 18100 },
+  { name: "Dec", value: 17200 },
+  { name: "Jan", value: 19500 },
+  { name: "Feb", value: 21300 },
+  { name: "Mar", value: 23800 },
+];
+
+const tradeVolumeData = [
+  { name: "Jul", value: 45 },
+  { name: "Aug", value: 52 },
+  { name: "Sep", value: 48 },
+  { name: "Oct", value: 61 },
+  { name: "Nov", value: 55 },
+  { name: "Dec", value: 67 },
+  { name: "Jan", value: 72 },
+  { name: "Feb", value: 78 },
+  { name: "Mar", value: 85 },
+];
+
+const RECENT_ACTIVITIES = [
+  {
+    type: "credit",
+    label: "Credit Assessment Completed",
+    detail: "Score: 742 — Low Risk",
+    time: "2 hours ago",
+    positive: true,
+  },
+  {
+    type: "trade",
+    label: "Compliance Doc Generated",
+    detail: "Certificate of Origin — MY → SG",
+    time: "5 hours ago",
+    positive: true,
+  },
+  {
+    type: "market",
+    label: "Supply Chain Alert",
+    detail: "Palm oil price spike detected (+8.2%)",
+    time: "1 day ago",
+    positive: false,
+  },
+  {
+    type: "credit",
+    label: "Loan Match Found",
+    detail: "Tier 1 Micro-finance — RM 50,000",
+    time: "2 days ago",
+    positive: true,
+  },
+  {
+    type: "market",
+    label: "Market Forecast Updated",
+    detail: "Q2 demand forecast for electronics",
+    time: "3 days ago",
+    positive: true,
+  },
+];
+
+const activityIcons: Record<string, { icon: typeof CreditCard; bg: string; color: string }> = {
+  credit: { icon: ShieldCheck, bg: "var(--color-success-light)", color: "var(--color-success)" },
+  trade: { icon: FileText, bg: "var(--color-primary-light)", color: "var(--color-primary)" },
+  market: { icon: BarChart3, bg: "var(--color-warning-light)", color: "var(--color-warning)" },
+};
+
+export default function DashboardPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div>
+      {/* Page Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+          Dashboard
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+          Overview of your MSME business performance across ASEAN markets
+        </p>
+      </div>
+
+      {/* Metrics Row — Bento Box */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+        <MetricCard
+          title="Monthly Revenue"
+          value="$23,800"
+          subtitle="March 2026"
+          change={{ value: "12.3%", positive: true }}
+          icon={DollarSign}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <MetricCard
+          title="Smart Credit Score"
+          value="742"
+          subtitle="Low Risk"
+          change={{ value: "18 pts", positive: true }}
+          icon={CreditCard}
+          iconBg="var(--color-success-light)"
+        />
+        <MetricCard
+          title="Active Trade Routes"
+          value="5"
+          subtitle="MY, SG, ID, TH, VN"
+          icon={Globe}
+          iconBg="var(--color-ai-lavender)"
+        />
+        <MetricCard
+          title="Market Sentiment"
+          value="Bullish"
+          subtitle="ASEAN Electronics"
+          change={{ value: "3.2%", positive: true }}
+          icon={TrendingUp}
+          iconBg="var(--color-warning-light)"
+        />
+      </div>
+
+      {/* Charts Row — Bento Box */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+        <ChartCard
+          title="Revenue Trend"
+          subtitle="Last 9 months"
+          data={revenueData}
+          color="#3B82F6"
+          headerRight={
+            <span className="badge badge-success">
+              <ArrowUpRight className="h-3 w-3" /> 12.3%
+            </span>
+          }
+        />
+        <ChartCard
+          title="Cross-Border Shipments"
+          subtitle="Monthly trade volume"
+          data={tradeVolumeData}
+          color="#8B5CF6"
+          headerRight={
+            <span className="badge badge-success">
+              <ArrowUpRight className="h-3 w-3" /> 8.9%
+            </span>
+          }
+        />
+      </div>
+
+      {/* Bottom Row — Activities + AI Chat */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        {/* Recent Activities */}
+        <div className="lg:col-span-3 card">
+          <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+            Recent Activities
+          </h3>
+          <div className="space-y-3">
+            {RECENT_ACTIVITIES.map((activity, i) => {
+              const { icon: Icon, bg, color } = activityIcons[activity.type];
+              return (
+                <div key={i} className="flex items-center gap-3">
+                  <div
+                    className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0"
+                    style={{ background: bg }}
+                  >
+                    <Icon className="h-4 w-4" style={{ color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                      {activity.label}
+                    </p>
+                    <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                      {activity.detail}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {activity.positive ? (
+                      <ArrowUpRight className="h-3.5 w-3.5" style={{ color: "var(--color-success)" }} />
+                    ) : (
+                      <ArrowDownRight className="h-3.5 w-3.5" style={{ color: "var(--color-danger)" }} />
+                    )}
+                    <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                      {activity.time}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* AI Chat Widget */}
+        <div className="lg:col-span-2">
+          <AIChat />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

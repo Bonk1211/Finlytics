@@ -1,4 +1,4 @@
-.PHONY: install start stop
+.PHONY: install start stop dev
 
 SHELL := /bin/bash
 
@@ -18,9 +18,11 @@ start:
 	(cd frontend && npm run dev) & \
 	wait
 
+dev: start
+
 stop:
 	@echo "Stopping running services..."
 	-pkill -f "uvicorn app.main:app"
 	-pkill -f "npm run dev"
-	-pkill -f "next dev"
+	-pkill -f "node.*next"
 	@echo "Services stopped."
