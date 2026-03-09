@@ -74,7 +74,30 @@ def search_web(query: str) -> str:
     except Exception as e:
         return f"Error searching the web with Tavily: {e}"
 
-tools = [calculator, get_current_date, get_stock_price, search_web]
+@tool
+def get_asean_business_news(country_code: str = "sg") -> str:
+    """Fetch top breaking business news headlines for a specific ASEAN country (e.g., 'sg' for Singapore, 'id' for Indonesia, 'my' for Malaysia)."""
+    settings = get_settings()
+    if not settings.news_api_key:
+        return "News API key is not configured."
+        
+    try:
+        import requests
+        url = f"https://newsapi.org/v2/top-headlines?country={country_code}&category=business&apiKey={settings.news_api_key}"
+        response = requests.get(url).json()
+        
+        if response.get("status") != "ok":
+            return f"Failed to fetch news: {response.get('message', 'Unknown error')}"
+            
+        headlines = [article['title'] for article in response.get('articles', [])[:5]]
+        if not headlines:
+            return f"No recent business headlines found for country code {country_code}."
+            
+        return f"Top Breaking Business Headlines for {country_code.upper()}:\n" + "\n".join(f"- {h}" for h in headlines)
+    except Exception as e:
+        return f"Error fetching breaking news: {e}"
+
+tools = [calculator, get_current_date, get_stock_price, search_web, get_asean_business_news]
 tool_node = ToolNode(tools)
 
 # --- Define State ---

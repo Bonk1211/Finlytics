@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     # --- Agent APIs ---
     tavily_api_key: str | None = None
     alphavantage_api_key: str | None = None
+    news_api_key: str | None = None
 
     # --- Feature flags ---
     enable_trade_ai: bool = True
