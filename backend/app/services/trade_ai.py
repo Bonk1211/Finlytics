@@ -4,14 +4,19 @@ Uses Gemini with a curated knowledge base of ASEAN trade regulations as context.
 """
 
 import json
+import chromadb
 from app.schemas.trade_ai import (
     QueryRequest, QueryResponse, SourceDocument,
     ComplianceDocRequest, ComplianceDocResponse,
     TariffLookupRequest, TariffLookupResponse
 )
-from app.services.gemini_client import generate
+from app.services.gemini_client import generate, agentic_generate
 
-# --- Knowledge base (replace with vector DB for production scale) ---
+# --- ChromaDB Vector Database setup ---
+_chroma_client = chromadb.Client()
+_collection = _chroma_client.get_or_create_collection(name="trade_regulations")
+
+# --- Knowledge base (inserted into Vector DB) ---
 TRADE_REGULATIONS = [
     {
         "title": "ASEAN Trade in Goods Agreement (ATIGA)",
@@ -102,14 +107,37 @@ The confidence score should reflect how well the context documents address the q
 """
 
 
+# Ensure data is populated in Vector DB (simulates embedding generation)
+if _collection.count() == 0:
+    for i, doc in enumerate(TRADE_REGULATIONS):
+        _collection.add(
+            documents=[doc["content"]],
+            metadatas=[{"title": doc["title"]}],
+            ids=[f"doc_{i}"]
+        )
+
+
 async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
-    """Answer a trade regulation question using Gemini + regulation context."""
-    # Build context from knowledge base
-    context_text = "\n\n".join(
-        f"### {doc['title']}\n{doc['content']}" for doc in TRADE_REGULATIONS
+    """Answer a trade regulation question using Gemini + Vector DB context."""
+    # Query ChromaDB Vector database
+    results = _collection.query(
+        query_texts=[request.question],
+        n_results=3
     )
 
-    prompt = f"""## Context Documents
+    context_text = ""
+    retrieved_titles = []
+    if results and results["documents"] and len(results["documents"][0]) > 0:
+        docs = results["documents"][0]
+        metadatas = results["metadatas"][0]
+        for idx, text in enumerate(docs):
+            title = metadatas[idx]["title"]
+            retrieved_titles.append(title)
+            context_text += f"### {title}\n{text}\n\n"
+    else:
+        context_text = "No relevant context found in the database."
+
+    prompt = f"""## Context Documents (from Vector DB)
 
 {context_text}
 
@@ -120,9 +148,10 @@ async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
     if request.context:
         prompt += f"\n\n## Additional Context from User\n{request.context}"
 
-    prompt += "\n\nRespond in the JSON format specified in your instructions."
+    prompt += "\n\nRespond in the JSON format specified in your instructions. ONLY use the provided Context Documents."
 
-    raw_response = await generate(prompt, system_instruction=SYSTEM_INSTRUCTION)
+    # Agentic generate adds reflection and hallucination prevention
+    raw_response = await agentic_generate(prompt, system_instruction=SYSTEM_INSTRUCTION)
 
     # Parse the JSON response from Gemini
     try:
