@@ -11,7 +11,8 @@ from app.schemas.trade_ai import (
     ComplianceDocRequest, ComplianceDocResponse,
     TariffLookupRequest, TariffLookupResponse
 )
-from app.services.gemini_client import generate, agentic_generate
+from app.services.gemini_client import generate
+from app.services.agent import run_langgraph_agent
 from app.services.mem0_client import get_memories_async, add_memory_async
 
 # --- ChromaDB Vector Database setup ---
@@ -157,8 +158,8 @@ async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
 
     prompt += "\n\nRespond in the JSON format specified in your instructions. ONLY use the provided Context Documents and act agentically."
 
-    # Agentic generate adds reflection and hallucination prevention
-    raw_response = await agentic_generate(prompt, system_instruction=SYSTEM_INSTRUCTION)
+    # LangGraph agent adds multi-step tool execution and reflection
+    raw_response = await run_langgraph_agent(prompt, system_instruction=SYSTEM_INSTRUCTION)
 
     # Parse the JSON response from Gemini
     try:
