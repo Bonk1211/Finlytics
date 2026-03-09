@@ -1,40 +1,91 @@
-"""Inventory Demand Prediction Service.
+"""Inventory Demand Prediction Service powered by Gemini.
 
-Currently returns mock forecasts. Swap in Prophet / XGBoost for production.
+Uses Gemini to analyze sales patterns and generate demand forecasts.
 """
 
-import random
-from datetime import datetime, timedelta
-
+import json
 from app.schemas.inventory import PredictRequest, PredictResponse, ForecastPoint
+from app.services.gemini_client import generate
+
+SYSTEM_INSTRUCTION = """You are an expert inventory demand forecasting analyst for MSME businesses in ASEAN.
+
+You will be given historical sales data and asked to predict future demand.
+
+Analyze the data for:
+- Trends (upward, downward, stable)
+- Seasonal patterns
+- Volatility
+
+Respond in JSON format:
+{
+  "forecast": [
+    {
+      "date": "YYYY-MM-DD",
+      "predicted_quantity": 105.0,
+      "lower_bound": 90.0,
+      "upper_bound": 120.0
+    }
+  ],
+  "model_used": "gemini_analysis"
+}
+
+Rules:
+- Generate exactly the requested number of forecast days.
+- Continue dates sequentially from the last data point.
+- Lower bound should be ~80% of predicted, upper bound ~120%.
+- Base predictions on actual patterns in the data. Consider trends, averages, and variability.
+- Use realistic values — don't just repeat the average.
+"""
 
 
 async def predict_demand(request: PredictRequest) -> PredictResponse:
-    """Predict future demand based on sales history (mock implementation)."""
-    # Calculate baseline from historical data
-    avg_quantity = sum(dp.quantity for dp in request.sales_history) / len(request.sales_history)
+    """Predict future demand based on sales history using Gemini analysis."""
+    # Format sales data for Gemini
+    sales_data_str = "\n".join(
+        f"  {dp.date}: quantity={dp.quantity}"
+        + (f", price={dp.price}" if dp.price else "")
+        + (f", category={dp.category}" if dp.category else "")
+        + (f", region={dp.region}" if dp.region else "")
+        for dp in request.sales_history
+    )
 
-    # Generate mock forecast with slight trend and noise
-    forecast: list[ForecastPoint] = []
-    last_date = datetime.strptime(request.sales_history[-1].date, "%Y-%m-%d")
+    prompt = f"""## Product: {request.product_name}
 
-    for i in range(1, request.forecast_days + 1):
-        forecast_date = last_date + timedelta(days=i)
-        trend = 1 + (i * 0.002)  # slight upward trend
-        noise = random.uniform(0.85, 1.15)
-        predicted = round(avg_quantity * trend * noise, 1)
+## Historical Sales Data
+{sales_data_str}
 
-        forecast.append(
+## Request
+Predict demand for the next {request.forecast_days} day(s) starting from the day after the last data point.
+
+Respond in the JSON format specified."""
+
+    raw_response = await generate(prompt, system_instruction=SYSTEM_INSTRUCTION)
+
+    try:
+        cleaned = raw_response.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1]
+            cleaned = cleaned.rsplit("```", 1)[0]
+        parsed = json.loads(cleaned)
+
+        forecast = [
             ForecastPoint(
-                date=forecast_date.strftime("%Y-%m-%d"),
-                predicted_quantity=predicted,
-                lower_bound=round(predicted * 0.8, 1),
-                upper_bound=round(predicted * 1.2, 1),
+                date=fp["date"],
+                predicted_quantity=float(fp["predicted_quantity"]),
+                lower_bound=float(fp["lower_bound"]),
+                upper_bound=float(fp["upper_bound"]),
             )
-        )
+            for fp in parsed.get("forecast", [])
+        ]
+
+        model_used = parsed.get("model_used", "gemini_analysis")
+
+    except (json.JSONDecodeError, ValueError, KeyError):
+        forecast = []
+        model_used = "gemini_analysis"
 
     return PredictResponse(
         product_name=request.product_name,
         forecast=forecast,
-        model_used="mock_prophet",
+        model_used=model_used,
     )

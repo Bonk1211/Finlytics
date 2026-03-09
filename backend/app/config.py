@@ -9,17 +9,9 @@ class Settings(BaseSettings):
     secret_key: str = "changeme"
     allowed_origins: str = "http://localhost:3000"
 
-    # --- LLM / RAG ---
-    openai_api_key: str = ""
-    embedding_model: str = "BAAI/bge-large-en"
-    llm_model: str = "gpt-3.5-turbo"
-    vector_store_path: str = "data/vector_store"
-
-    # --- Document AI ---
-    ocr_engine: str = "tesseract"  # tesseract | paddleocr
-
-    # --- Translation ---
-    translation_backend: str = "mock"  # mock | nllb | libretranslate
+    # --- Google Gemini ---
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-3-flash-preview"
 
     # --- Feature flags ---
     enable_trade_ai: bool = True

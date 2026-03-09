@@ -1,57 +1,82 @@
-"""Multilingual Translation Service.
+"""Multilingual Translation Service powered by Gemini.
 
-Currently returns mock translations. Swap in NLLB / mBART for production.
+Uses Gemini for high-quality ASEAN language translation.
 """
 
+import json
 from app.schemas.translation import TranslateRequest, TranslateResponse, SupportedLanguage
-
-# --- Mock translation dictionary ---
-MOCK_TRANSLATIONS: dict[str, dict[SupportedLanguage, str]] = {
-    "hello": {
-        SupportedLanguage.ENGLISH: "Hello",
-        SupportedLanguage.MALAY: "Helo",
-        SupportedLanguage.INDONESIAN: "Halo",
-        SupportedLanguage.THAI: "สวัสดี",
-        SupportedLanguage.VIETNAMESE: "Xin chào",
-        SupportedLanguage.CHINESE: "你好",
-    },
-}
+from app.services.gemini_client import generate
 
 LANGUAGE_NAMES = {
     SupportedLanguage.ENGLISH: "English",
-    SupportedLanguage.MALAY: "Malay",
-    SupportedLanguage.INDONESIAN: "Indonesian",
+    SupportedLanguage.MALAY: "Malay (Bahasa Melayu)",
+    SupportedLanguage.INDONESIAN: "Indonesian (Bahasa Indonesia)",
     SupportedLanguage.THAI: "Thai",
     SupportedLanguage.VIETNAMESE: "Vietnamese",
-    SupportedLanguage.CHINESE: "Chinese",
+    SupportedLanguage.CHINESE: "Chinese (Simplified)",
 }
 
+SYSTEM_INSTRUCTION = """You are a professional translator specializing in ASEAN business and trade languages.
 
-def _detect_language(text: str) -> SupportedLanguage:
-    """Simple heuristic language detection — replace with real detector."""
-    if any("\u0e00" <= c <= "\u0e7f" for c in text):
-        return SupportedLanguage.THAI
-    if any("\u4e00" <= c <= "\u9fff" for c in text):
-        return SupportedLanguage.CHINESE
-    if any(c in "àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệ" for c in text.lower()):
-        return SupportedLanguage.VIETNAMESE
-    return SupportedLanguage.ENGLISH
+Translate the given text accurately and naturally. Preserve the original meaning, tone, and any technical or business terminology.
+
+For trade-related terms, use locally accepted terminology in the target language.
+
+Respond in JSON format:
+{
+  "translated_text": "The translated text here",
+  "detected_source_language": "en",
+  "confidence": 0.95
+}
+
+Language codes: en (English), ms (Malay), id (Indonesian), th (Thai), vi (Vietnamese), zh (Chinese Simplified).
+"""
 
 
 async def translate_text(request: TranslateRequest) -> TranslateResponse:
-    """Translate text between ASEAN languages (mock implementation)."""
-    source_lang = request.source_language or _detect_language(request.text)
-    target_lang = request.target_language
+    """Translate text between ASEAN languages using Gemini."""
+    source_lang_name = LANGUAGE_NAMES.get(request.source_language, "auto-detect")
+    target_lang_name = LANGUAGE_NAMES[request.target_language]
 
-    # Mock: wrap the original text with a label
-    translated = (
-        f"[{LANGUAGE_NAMES[target_lang]} translation of: \"{request.text}\"] "
-        f"— This is a mock translation. Connect NLLB/mBART model for real translations."
-    )
+    if request.source_language:
+        prompt = (
+            f"Translate the following text from {source_lang_name} to {target_lang_name}.\n\n"
+            f"Text to translate:\n{request.text}"
+        )
+    else:
+        prompt = (
+            f"Detect the language and translate the following text to {target_lang_name}.\n\n"
+            f"Text to translate:\n{request.text}"
+        )
+
+    prompt += "\n\nRespond in the JSON format specified."
+
+    raw_response = await generate(prompt, system_instruction=SYSTEM_INSTRUCTION)
+
+    try:
+        cleaned = raw_response.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1]
+            cleaned = cleaned.rsplit("```", 1)[0]
+        parsed = json.loads(cleaned)
+
+        translated_text = parsed.get("translated_text", raw_response)
+        confidence = float(parsed.get("confidence", 0.8))
+
+        detected_lang_code = parsed.get("detected_source_language", "en")
+        try:
+            source_lang = request.source_language or SupportedLanguage(detected_lang_code)
+        except ValueError:
+            source_lang = SupportedLanguage.ENGLISH
+
+    except (json.JSONDecodeError, ValueError):
+        translated_text = raw_response
+        confidence = 0.7
+        source_lang = request.source_language or SupportedLanguage.ENGLISH
 
     return TranslateResponse(
-        translated_text=translated,
+        translated_text=translated_text,
         source_language=source_lang,
-        target_language=target_lang,
-        confidence=0.85,
+        target_language=request.target_language,
+        confidence=round(min(max(confidence, 0), 1), 2),
     )
