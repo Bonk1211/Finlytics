@@ -1,0 +1,359 @@
+{
+  "info": {
+    "_postman_id": "f5a044bc-b1ee-4217-a0f1-46f3bcb4d546",
+    "name": "MSME Trade AI Platform",
+    "description": "Complete collection to test all backend micro-services for the BorneoHack AI platform. Includes endpoints for Credit Scoring, Supply Chain, Market Insights, Trade Regulation Assistant, Dashboard, and Translation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Alternative Credit Scoring",
+      "item": [
+        {
+          "name": "Score MSME Credit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_name\": \"PT Bintang Tech\",\n  \"monthly_revenue\": 25000,\n  \"years_in_business\": 4,\n  \"transaction_count\": 120,\n  \"digital_transaction_ratio\": 0.85,\n  \"mobile_payment_volume\": 20000,\n  \"inventory_turnover\": 5.2,\n  \"supplier_count\": 3,\n  \"supplier_reliability_score\": 0.9,\n  \"customer_rating\": 4.7,\n  \"payment_history_score\": 0.95\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/credit/score",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "credit",
+                "score"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Supply Chain & Inventory",
+      "item": [
+        {
+          "name": "Check Inventory & Auto-Reorder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_name\": \"Maju Jaya Logistics\",\n  \"inventory\": [\n    {\n      \"product_name\": \"Palm Oil Extract\",\n      \"sku\": \"PO-1002\",\n      \"current_quantity\": 50,\n      \"unit\": \"liters\",\n      \"reorder_point\": 200,\n      \"unit_cost\": 15.00,\n      \"supplier_name\": \"AgriIndo Supplies\"\n    }\n  ],\n  \"average_daily_sales\": {\n    \"Palm Oil Extract\": 25.5\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/supply-chain/check-inventory",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "supply-chain",
+                "check-inventory"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Recommend Suppliers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_name\": \"Robusta Coffee Beans\",\n  \"required_quantity\": 1000,\n  \"target_region\": \"Vietnam\",\n  \"max_lead_time_days\": 14,\n  \"existing_suppliers\": [\n    {\n      \"name\": \"Da Lat Coffee Co\",\n      \"region\": \"Vietnam\",\n      \"products\": [\"Robusta\"],\n      \"lead_time_days\": 10,\n      \"unit_cost\": 8.50,\n      \"reliability_score\": 0.9,\n      \"minimum_order\": 500\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/supply-chain/recommend-suppliers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "supply-chain",
+                "recommend-suppliers"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Predictive Market Analytics",
+      "item": [
+        {
+          "name": "Get General Insights",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/market/insights?region=Vietnam&product=Coffee",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "market",
+                "insights"
+              ],
+              "query": [
+                {
+                  "key": "region",
+                  "value": "Vietnam"
+                },
+                {
+                  "key": "product",
+                  "value": "Coffee"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deep Market Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_name\": \"Borneo Crafts\",\n  \"products\": [\"Handmade Rattan Baskets\"],\n  \"current_regions\": [\"Malaysia\"],\n  \"monthly_sales\": 5000,\n  \"target_regions\": [\"Singapore\", \"Thailand\"],\n  \"goals\": \"Scale via e-commerce to Singapore\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/market/analyze",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "market",
+                "analyze"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pricing Recommendation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_name\": \"Premium Rattan Chair\",\n  \"current_price\": 120.00,\n  \"unit_cost\": 65.00,\n  \"target_region\": \"Singapore\",\n  \"competitor_prices\": [145.00, 110.00, 160.00],\n  \"monthly_volume\": 50\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/market/pricing",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "market",
+                "pricing"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. MSME Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_name\": \"Toko Abadi\",\n  \"monthly_revenue\": 25000,\n  \"monthly_expenses\": 18000,\n  \"transaction_count\": 450,\n  \"product_count\": 12,\n  \"customer_count\": 320,\n  \"top_products\": [\"Batik Shirts\", \"Sarongs\"],\n  \"operating_regions\": [\"Indonesia\", \"Malaysia\"],\n  \"years_in_business\": 5.5,\n  \"credit_score\": 720,\n  \"inventory_health\": \"attention_needed\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/dashboard/summary",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "dashboard",
+                "summary"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Cross-Border Trade Assistant",
+      "item": [
+        {
+          "name": "Query Regulations (Agentic RAG)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Do I need a Certificate of Origin to export to Singapore under ATIGA?\",\n  \"user_id\": \"bintang_msme_001\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/trade-ai/query",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "trade-ai",
+                "query"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generate Compliance Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document_type\": \"Commercial Invoice\",\n  \"transaction_details\": {\n    \"Seller\": \"Borneo Electronics\",\n    \"Buyer\": \"SG Retail Group Ltd\",\n    \"Items\": \"100x Smart Home Hubs\",\n    \"Total Value\": \"$15,000 USD\",\n    \"Incoterms\": \"FOB Jakarta\"\n  },\n  \"source_country\": \"Indonesia\",\n  \"destination_country\": \"Singapore\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/trade-ai/generate-document",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "trade-ai",
+                "generate-document"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tariff Lookup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_name\": \"Woven Rattan Furniture\",\n  \"source_country\": \"Malaysia\",\n  \"destination_country\": \"Vietnam\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/trade-ai/tariff-lookup",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "trade-ai",
+                "tariff-lookup"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Translation",
+      "item": [
+        {
+          "name": "Translate Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Welcome to our wholesale platform. We offer premium coffee beans at competitive rates.\",\n  \"target_language\": \"Indonesian\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/translation/translate",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "translation",
+                "translate"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

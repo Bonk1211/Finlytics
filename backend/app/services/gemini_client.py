@@ -2,9 +2,15 @@
 
 import asyncio
 import json
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from google import genai
+from google.genai import errors
+from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+
 from app.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 _client: genai.Client | None = None
 
@@ -21,6 +27,19 @@ def get_gemini_client() -> genai.Client:
     return _client
 
 
+def _should_retry_error(exc: Exception) -> bool:
+    """Check if the error is a temporary server error 503 or 429."""
+    if isinstance(exc, errors.ServerError):
+        return exc.code in (503, 429, 500)
+    return False
+
+
+@retry(
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    stop=stop_after_attempt(5),
+    retry=retry_if_exception_type(errors.ServerError),
+    reraise=True
+)
 def _sync_generate(prompt: str, system_instruction: str = "") -> str:
     settings = get_settings()
     client = get_gemini_client()
@@ -72,6 +91,12 @@ Rules:
     return improved_response
 
 
+@retry(
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    stop=stop_after_attempt(5),
+    retry=retry_if_exception_type(errors.ServerError),
+    reraise=True
+)
 def _sync_generate_file(file_bytes: bytes, mime_type: str, prompt: str, system_instruction: str = "") -> str:
     settings = get_settings()
     client = get_gemini_client()

@@ -32,15 +32,17 @@ def _sync_get_memories(user_id: str, query: str = "") -> str:
     client = get_memory_client()
     if client is not None:
         if query:
-            results = client.search(query, user_id=user_id)
+            results = client.search(query, filters={"AND": [{"user_id": user_id}]})
         else:
             results = client.get_all(user_id=user_id)
         
         # Format the memory into strings
-        if results and isinstance(results, list):
-            # Mem0 returning list of memories
-            memories = [str(r.get('memory', r)) for r in results]
-            return "\n".join(f"- {mem}" for mem in memories)
+        if results:
+            # Mem0 returning list of memories or dict with "results"
+            mem_list = results.get("results", []) if isinstance(results, dict) else results
+            if isinstance(mem_list, list):
+                memories = [str(r.get('memory', r)) for r in mem_list]
+                return "\n".join(f"- {mem}" for mem in memories)
     return ""
 
 
