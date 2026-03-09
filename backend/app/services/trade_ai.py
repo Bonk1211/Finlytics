@@ -4,7 +4,11 @@ Uses Gemini with a curated knowledge base of ASEAN trade regulations as context.
 """
 
 import json
-from app.schemas.trade_ai import QueryRequest, QueryResponse, SourceDocument
+from app.schemas.trade_ai import (
+    QueryRequest, QueryResponse, SourceDocument,
+    ComplianceDocRequest, ComplianceDocResponse,
+    TariffLookupRequest, TariffLookupResponse
+)
 from app.services.gemini_client import generate
 
 # --- Knowledge base (replace with vector DB for production scale) ---
@@ -155,3 +159,112 @@ async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
         sources=sources,
         confidence=round(min(max(confidence, 0), 1), 2),
     )
+
+
+DOC_SYSTEM_INSTRUCTION = """You are an expert trade compliance officer.
+
+Generate trade compliance documents (like Commercial Invoices, Packing Lists, Certificates of Origin)
+based on the provided transaction details.
+
+Respond in JSON format:
+{
+  "document_title": "Commercial Invoice",
+  "document_content": "The full document content formatted cleanly in markdown...",
+  "missing_information": ["List any required fields that were missing from the input"]
+}
+
+Rules:
+- Make the document professional and ready to use.
+- Identify any mandatory information missing (e.g., HS Codes, Incoterms) in missing_information.
+"""
+
+
+async def generate_compliance_document(request: ComplianceDocRequest) -> ComplianceDocResponse:
+    """Generate trade compliance documents using Gemini."""
+    details_str = "\n".join(f"- {k}: {v}" for k, v in request.transaction_details.items())
+
+    prompt = f"""## Request: Generate a {request.document_type}
+## Route: {request.source_country} to {request.destination_country}
+
+## Transaction Details:
+{details_str}
+
+Please generate the document and respond in the JSON format specified."""
+
+    raw_response = await generate(prompt, system_instruction=DOC_SYSTEM_INSTRUCTION)
+
+    try:
+        cleaned = raw_response.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1]
+            cleaned = cleaned.rsplit("```", 1)[0]
+        parsed = json.loads(cleaned)
+
+        return ComplianceDocResponse(
+            document_title=parsed.get("document_title", request.document_type),
+            document_content=parsed.get("document_content", raw_response),
+            missing_information=parsed.get("missing_information", []),
+        )
+    except (json.JSONDecodeError, ValueError):
+        return ComplianceDocResponse(
+            document_title=request.document_type,
+            document_content=raw_response,
+            missing_information=[],
+        )
+
+
+TARIFF_SYSTEM_INSTRUCTION = """You are an ASEAN customs and tariff expert.
+
+Provide tariff rates, estimated HS codes, and export/import requirements for products
+moving between specific countries.
+
+Respond in JSON format:
+{
+  "product_category": "General category",
+  "estimated_hs_code": "1234.56",
+  "applicable_tariffs": ["Standard MFN rate: 10%"],
+  "preferential_rates": "ATIGA rate: 0% (if Certificate of Origin Form D is provided)",
+  "required_documents": ["Commercial Invoice", "Packing List", "Bill of Lading"],
+  "import_restrictions": ["Requires import permit from Ministry of Agriculture"],
+  "ai_summary": "Overall assessment of trade friction and requirements"
+}
+"""
+
+
+async def lookup_tariff(request: TariffLookupRequest) -> TariffLookupResponse:
+    """Look up tariffs and export requirements using Gemini."""
+    prompt = f"""## Product: {request.product_name}
+## HS Code: {request.hs_code or 'Not provided - please estimate'}
+## Route: {request.source_country} to {request.destination_country}
+
+Provide customs, tariff, and regulatory requirements.
+Respond in the JSON format specified."""
+
+    raw_response = await generate(prompt, system_instruction=TARIFF_SYSTEM_INSTRUCTION)
+
+    try:
+        cleaned = raw_response.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1]
+            cleaned = cleaned.rsplit("```", 1)[0]
+        parsed = json.loads(cleaned)
+
+        return TariffLookupResponse(
+            product_category=parsed.get("product_category", ""),
+            estimated_hs_code=parsed.get("estimated_hs_code", request.hs_code),
+            applicable_tariffs=parsed.get("applicable_tariffs", []),
+            preferential_rates=parsed.get("preferential_rates", ""),
+            required_documents=parsed.get("required_documents", []),
+            import_restrictions=parsed.get("import_restrictions", []),
+            ai_summary=parsed.get("ai_summary", ""),
+        )
+    except (json.JSONDecodeError, ValueError):
+        return TariffLookupResponse(
+            product_category="Unknown",
+            estimated_hs_code=request.hs_code,
+            applicable_tariffs=[],
+            preferential_rates="",
+            required_documents=[],
+            import_restrictions=[],
+            ai_summary=raw_response,
+        )

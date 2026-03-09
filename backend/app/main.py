@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
-from app.routers import health, trade_ai, document_ai, translation, inventory, credit, market
+from app.routers import health, trade_ai, document_ai, translation, inventory, credit, market, supply_chain, dashboard
 
 load_dotenv()
 
@@ -32,6 +32,8 @@ app.include_router(translation.router, prefix="/api")
 app.include_router(inventory.router, prefix="/api")
 app.include_router(credit.router, prefix="/api")
 app.include_router(market.router, prefix="/api")
+app.include_router(supply_chain.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
 
 
 @app.get("/")
@@ -43,8 +45,9 @@ async def root():
             "Trade Regulation AI",
             "Document AI",
             "Translation",
-            "Inventory Prediction",
-            "Credit Scoring",
-            "Market Intelligence",
+            "Supply Chain & Inventory",
+            "Predictive Market Analytics",
+            "Alternative Credit Scoring",
+            "MSME Dashboard",
         ],
     }
