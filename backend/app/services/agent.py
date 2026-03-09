@@ -29,7 +29,52 @@ def get_current_date() -> str:
     from datetime import date
     return date.today().isoformat()
 
-tools = [calculator, get_current_date]
+@tool
+def get_stock_price(ticker: str) -> str:
+    """Get the current stock or forex price for a given ticker symbol (e.g. MSFT, AAPL) using Alpha Vantage."""
+    settings = get_settings()
+    if not settings.alphavantage_api_key:
+        return "Alpha Vantage API key is not configured."
+    
+    try:
+        import requests
+        url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={ticker}&apikey={settings.alphavantage_api_key}"
+        response = requests.get(url)
+        data = response.json()
+        quote = data.get("Global Quote")
+        if not quote:
+            return f"Error: Could not find data for ticker {ticker}. Note: Free Alpha Vantage limits apply."
+            
+        current_price = quote.get("05. price")
+        return f"The current price of {ticker} is {current_price} USD."
+    except Exception as e:
+        return f"Error fetching stock data from Alpha Vantage: {e}"
+
+@tool
+def search_web(query: str) -> str:
+    """Search the web for real-time news, market insights, and general inquiries using Tavily API."""
+    settings = get_settings()
+    if not settings.tavily_api_key:
+        return "Tavily API key is not configured."
+        
+    try:
+        from tavily import TavilyClient
+        client = TavilyClient(api_key=settings.tavily_api_key)
+        response = client.search(query=query, search_depth="advanced", max_results=3)
+        
+        results = response.get("results", [])
+        if not results:
+            return "No web results found."
+        
+        parsed_results = []
+        for r in results:
+            parsed_results.append(f"Title: {r.get('title')}\nSnippet: {r.get('content')}")
+            
+        return "\n\n".join(parsed_results)
+    except Exception as e:
+        return f"Error searching the web with Tavily: {e}"
+
+tools = [calculator, get_current_date, get_stock_price, search_web]
 tool_node = ToolNode(tools)
 
 # --- Define State ---

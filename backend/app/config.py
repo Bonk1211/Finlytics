@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     # --- Mem0 ---
     mem0_api_key: str | None = None
 
+    # --- Agent APIs ---
+    tavily_api_key: str | None = None
+    alphavantage_api_key: str | None = None
+
     # --- Feature flags ---
     enable_trade_ai: bool = True
     enable_document_ai: bool = True
