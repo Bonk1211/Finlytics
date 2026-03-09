@@ -3,14 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
-from app.routers import health
+from app.routers import health, trade_ai, document_ai, translation, inventory, credit, market, supply_chain, dashboard, mcp
 
 load_dotenv()
 
 app = FastAPI(
-    title="BorneoHack API",
+    title="BorneoHack MSME Trade AI",
     version="0.1.0",
-    description="FastAPI backend for BorneoHack",
+    description="Multi-AI service platform for MSME cross-border trade",
 )
 
 # --- CORS ---
@@ -26,8 +26,29 @@ app.add_middleware(
 
 # --- Routers ---
 app.include_router(health.router, prefix="/api", tags=["health"])
+app.include_router(trade_ai.router, prefix="/api")
+app.include_router(document_ai.router, prefix="/api")
+app.include_router(translation.router, prefix="/api")
+app.include_router(inventory.router, prefix="/api")
+app.include_router(credit.router, prefix="/api")
+app.include_router(market.router, prefix="/api")
+app.include_router(supply_chain.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
+app.include_router(mcp.router, prefix="/api")
 
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to BorneoHack API"}
+    return {
+        "message": "Welcome to BorneoHack MSME Trade AI Platform",
+        "docs": "/docs",
+        "modules": [
+            "Trade Regulation AI",
+            "Document AI",
+            "Translation",
+            "Supply Chain & Inventory",
+            "Predictive Market Analytics",
+            "Alternative Credit Scoring",
+            "MSME Dashboard",
+        ],
+    }
