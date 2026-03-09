@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-3-flash-preview"
 
+    # --- Mem0 ---
+    mem0_api_key: str | None = None
+
     # --- Feature flags ---
     enable_trade_ai: bool = True
     enable_document_ai: bool = True

@@ -4,6 +4,7 @@ Uses Gemini with a curated knowledge base of ASEAN trade regulations as context.
 """
 
 import json
+import asyncio
 import chromadb
 from app.schemas.trade_ai import (
     QueryRequest, QueryResponse, SourceDocument,
@@ -11,6 +12,7 @@ from app.schemas.trade_ai import (
     TariffLookupRequest, TariffLookupResponse
 )
 from app.services.gemini_client import generate, agentic_generate
+from app.services.mem0_client import get_memories_async, add_memory_async
 
 # --- ChromaDB Vector Database setup ---
 _chroma_client = chromadb.Client()
@@ -137,9 +139,14 @@ async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
     else:
         context_text = "No relevant context found in the database."
 
+    # Fetch user memory from Mem0
+    user_memory = await get_memories_async(request.user_id, query=request.question)
+    memory_text = f"\n\n## Past Memory & Context (Mem0)\n{user_memory}" if user_memory else ""
+
     prompt = f"""## Context Documents (from Vector DB)
 
 {context_text}
+{memory_text}
 
 ## User Question
 
@@ -148,7 +155,7 @@ async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
     if request.context:
         prompt += f"\n\n## Additional Context from User\n{request.context}"
 
-    prompt += "\n\nRespond in the JSON format specified in your instructions. ONLY use the provided Context Documents."
+    prompt += "\n\nRespond in the JSON format specified in your instructions. ONLY use the provided Context Documents and act agentically."
 
     # Agentic generate adds reflection and hallucination prevention
     raw_response = await agentic_generate(prompt, system_instruction=SYSTEM_INSTRUCTION)
@@ -182,6 +189,17 @@ async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
         answer = raw_response
         confidence = 0.7
         sources = []
+
+    # Store memory in the background
+    asyncio.create_task(
+        add_memory_async(
+            messages=[
+                {"role": "user", "content": request.question},
+                {"role": "assistant", "content": answer}
+            ],
+            user_id=request.user_id
+        )
+    )
 
     return QueryResponse(
         answer=answer,

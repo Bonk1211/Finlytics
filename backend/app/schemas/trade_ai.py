@@ -5,6 +5,7 @@ class QueryRequest(BaseModel):
     """Request to ask a trade regulation question."""
     question: str = Field(..., min_length=1, description="The trade regulation question to ask")
     context: str | None = Field(None, description="Optional additional context")
+    user_id: str = Field("default_msme", description="User ID for Mem0 contextual memory")
 
 
 class SourceDocument(BaseModel):
