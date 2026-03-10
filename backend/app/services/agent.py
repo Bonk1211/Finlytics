@@ -395,6 +395,20 @@ async def supervisor_node(state: AgentState):
     
     return {"next": response.next}
 
+def _extract_text(content) -> str:
+    """Extract plain text from LLM message content which may be str or list of parts."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "text":
+                parts.append(item["text"])
+            elif isinstance(item, str):
+                parts.append(item)
+        return "\n".join(parts)
+    return str(content)
+
 async def research_node(state: AgentState):
     """Worker Agent: Researcher — specializes in web search, news, and market intelligence."""
     llm = get_llm()
@@ -402,13 +416,14 @@ async def research_node(state: AgentState):
     research_agent = create_react_agent(
         llm, 
         tools=research_tools, 
-        state_modifier=RESEARCHER_PROMPT
+        prompt=RESEARCHER_PROMPT
     )
     
     result = await research_agent.ainvoke({"messages": state["messages"]})
     last_message = result["messages"][-1]
+    text = _extract_text(last_message.content)
     
-    return {"messages": [AIMessage(content=f"**Researcher:**\n{last_message.content}", name="Researcher")]}
+    return {"messages": [AIMessage(content=f"**Researcher:**\n{text}", name="Researcher")]}
 
 async def quant_node(state: AgentState):
     """Worker Agent: Quant — specializes in calculations, stock prices, and financial modeling."""
@@ -417,13 +432,14 @@ async def quant_node(state: AgentState):
     quant_agent = create_react_agent(
         llm, 
         tools=quant_tools, 
-        state_modifier=QUANT_PROMPT
+        prompt=QUANT_PROMPT
     )
     
     result = await quant_agent.ainvoke({"messages": state["messages"]})
     last_message = result["messages"][-1]
+    text = _extract_text(last_message.content)
     
-    return {"messages": [AIMessage(content=f"**Quant:**\n{last_message.content}", name="Quant")]}
+    return {"messages": [AIMessage(content=f"**Quant:**\n{text}", name="Quant")]}
 
 # --- Build Graph ---
 builder = StateGraph(AgentState)
@@ -467,5 +483,19 @@ async def run_langgraph_agent(prompt: str, system_instruction: str = "") -> str:
             
     if not worker_responses:
         return "I could not generate an answer using the available agents."
-        
-    return "\n\n---\n\n".join(worker_responses)
+    
+    combined = "\n\n---\n\n".join(worker_responses)
+    
+    # --- Post-processing: clean up the response ---
+    import re
+    # Remove agent label prefixes
+    combined = combined.replace("**Researcher:**\n", "").replace("**Quant:**\n", "")
+    # Fix escaped newlines that LLM sometimes outputs as literal \\n
+    combined = combined.replace("\\n", "\n")
+    # Strip leaked metadata / extras / signature JSON blocks
+    combined = re.sub(r"['\"]?extras['\"]?\s*:\s*\{.*$", "", combined, flags=re.DOTALL)
+    combined = re.sub(r"['\"]?signature['\"]?\s*:\s*['\"].*$", "", combined, flags=re.DOTALL)
+    # Remove trailing whitespace and orphaned punctuation
+    combined = combined.rstrip(" ,.'\"}\n")
+    
+    return combined.strip()

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, Sparkles, FileText, TrendingUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "user" | "assistant";
@@ -129,6 +130,7 @@ export default function AIChat() {
               >
                 {msg.role === "assistant" ? (
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       p: ({ node, ...props }: any) => <p className="mb-2 last:mb-0" {...props} />,
                       strong: ({ node, ...props }: any) => <strong className="font-bold text-gray-900" {...props} />,
@@ -136,6 +138,17 @@ export default function AIChat() {
                       ol: ({ node, ...props }: any) => <ol className="list-decimal pl-4 mb-2" {...props} />,
                       li: ({ node, ...props }: any) => <li className="mb-1" {...props} />,
                       img: ({ node, ...props }: any) => <img className="rounded-lg my-2 max-w-full shadow-sm" {...props} />,
+                      h3: ({ node, ...props }: any) => <h3 className="text-sm font-bold text-gray-900 mt-3 mb-1" {...props} />,
+                      h2: ({ node, ...props }: any) => <h2 className="text-base font-bold text-gray-900 mt-3 mb-1" {...props} />,
+                      hr: () => <hr className="my-3 border-gray-200" />,
+                      table: ({ node, ...props }: any) => (
+                        <div className="overflow-x-auto my-2">
+                          <table className="w-full text-xs border-collapse border border-gray-200 rounded-lg" {...props} />
+                        </div>
+                      ),
+                      thead: ({ node, ...props }: any) => <thead className="bg-gray-100" {...props} />,
+                      th: ({ node, ...props }: any) => <th className="border border-gray-200 px-2 py-1.5 text-left font-semibold text-gray-700" {...props} />,
+                      td: ({ node, ...props }: any) => <td className="border border-gray-200 px-2 py-1.5 text-gray-600" {...props} />,
                     }}
                   >
                     {msg.content}

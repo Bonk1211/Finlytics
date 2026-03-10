@@ -24,7 +24,7 @@ export default function RightChatSidebar() {
       {/* Right Drawer */}
       <div
         className={clsx(
-          "fixed top-0 right-0 h-full w-[400px] z-50 bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.05)] transition-transform duration-300 ease-in-out flex flex-col",
+          "fixed top-0 right-0 h-full w-[520px] z-50 bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.05)] transition-transform duration-300 ease-in-out flex flex-col",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
