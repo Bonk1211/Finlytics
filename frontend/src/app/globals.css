@@ -309,3 +309,211 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #9CA3AF;
 }
+
+/* ============================================================
+   Smart HS Code Matcher
+   ============================================================ */
+.hs-search-wrapper {
+  position: relative;
+}
+
+.hs-search-input {
+  width: 100%;
+  padding: 18px 20px 18px 54px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: var(--bg-app);
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hs-search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.hs-search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.hs-search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  transition: color 0.2s ease;
+  pointer-events: none;
+}
+
+.hs-search-wrapper:focus-within .hs-search-icon {
+  color: var(--color-primary);
+}
+
+.hs-suggestion-card {
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: var(--bg-card);
+  border: 1.5px solid #E5E7EB;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: hs-fade-in 0.35s ease forwards;
+  opacity: 0;
+}
+
+.hs-suggestion-card:nth-child(1) { animation-delay: 0ms; }
+.hs-suggestion-card:nth-child(2) { animation-delay: 80ms; }
+.hs-suggestion-card:nth-child(3) { animation-delay: 160ms; }
+
+.hs-suggestion-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.hs-suggestion-card.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+@keyframes hs-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.confidence-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: #E5E7EB;
+  overflow: hidden;
+}
+
+.confidence-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hs-shimmer {
+  background: linear-gradient(90deg, var(--bg-app) 25%, #E8E9EC 50%, var(--bg-app) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 14px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.hs-code-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  letter-spacing: 0.02em;
+}
+
+.hs-selected-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  animation: hs-fade-in 0.3s ease forwards;
+}
+
+@keyframes hs-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
+  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+}
+
+.hs-loading-pulse {
+  animation: hs-pulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   Typeahead Dropdown
+   ============================================================ */
+.typeahead-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E5E7EB;
+  max-height: 360px;
+  overflow-y: auto;
+  z-index: 50;
+  padding: 6px;
+  animation: typeahead-enter 0.15s ease-out;
+}
+
+@keyframes typeahead-enter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.typeahead-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.08s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.typeahead-item:hover,
+.typeahead-item.active {
+  background: var(--bg-app);
+}
+
+.typeahead-item.active {
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+}
+
+.typeahead-hint {
+  display: flex;
+  gap: 16px;
+  padding: 8px 14px 4px;
+  border-top: 1px solid #F0F1F3;
+  margin-top: 4px;
+}
+
+.typeahead-hint span {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.typeahead-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--bg-app);
+  border: 1px solid #E5E7EB;
+  font-size: 10px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  line-height: 1;
+}

@@ -72,6 +72,18 @@ export const generateComplianceDoc = (data: {
     { method: "POST", body: JSON.stringify(data) }
   );
 
+// Matches backend HSCodeSuggestRequest schema — Smart HS Code Matcher
+export const suggestHSCodes = (data: { query: string }) =>
+  request<{
+    suggestions: Array<{
+      hs_code: string;
+      description: string;
+      confidence: number;
+      ai_explanation: string;
+    }>;
+    query: string;
+  }>("/trade-ai/suggest-hs-codes", { method: "POST", body: JSON.stringify(data) });
+
 // Matches backend TariffLookupRequest schema
 export const lookupTariff = (data: {
   product_name: string;

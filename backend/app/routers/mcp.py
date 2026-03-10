@@ -1,30 +1,11 @@
-"""Model Context Protocol (MCP) FastAPI Server integration."""
+"""Model Context Protocol (MCP) FastAPI router.
+
+Thin wrapper that mounts the MCP HTTP app (defined in app.mcp_tools)
+onto a FastAPI router for embedding inside the main API.
+"""
 
 from fastapi import APIRouter
-from mcp.server.fastmcp import FastMCP
+from app.mcp_tools import mcp, mcp_app  # noqa: F401 – re-exported for main.py
 
 router = APIRouter(prefix="/mcp", tags=["Model Context Protocol"])
-
-# Create an MCP server to expose our AI tools to external clients
-mcp = FastMCP("MSME_Trade_AI_MCP")
-
-@mcp.tool()
-def evaluate_math(expression: str) -> str:
-    """Evaluate a mathematical expression.
-    
-    Args:
-        expression: A valid Python math expression as a string
-    """
-    try:
-        allowed_names = {"__builtins__": None}
-        return str(eval(expression, allowed_names, {}))
-    except Exception as e:
-        return f"Error: {e}"
-
-@mcp.tool()
-def get_trade_regions() -> str:
-    """Get supported ASEAN trade regions."""
-    return "Supported regions: Singapore, Malaysia, Indonesia, Thailand, Vietnam, Philippines"
-
-# Map the MCP server onto the FastAPI router using SSE
-router.mount("/", mcp.sse_app())
+router.mount("/", mcp_app)

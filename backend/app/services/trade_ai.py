@@ -9,7 +9,8 @@ import logging
 from app.schemas.trade_ai import (
     QueryRequest, QueryResponse, SourceDocument,
     ComplianceDocRequest, ComplianceDocResponse,
-    TariffLookupRequest, TariffLookupResponse
+    TariffLookupRequest, TariffLookupResponse,
+    HSCodeSuggestRequest, HSCodeSuggestResponse, HSCodeSuggestion,
 )
 from app.services.gemini_client import generate, generate_embedding
 from app.services.agent import run_langgraph_agent
@@ -96,6 +97,171 @@ TRADE_REGULATIONS = [
 ]
 
 _seeded = False
+
+# --- HS Code seed data for Smart HS Code Matcher ---
+HS_CODES_SEED = [
+    # Agriculture & Food
+    {"hs_code": "0901.11", "description": "Coffee, not roasted, not decaffeinated", "category": "agriculture"},
+    {"hs_code": "0803.90", "description": "Bananas, including plantains, fresh or dried", "category": "agriculture"},
+    {"hs_code": "0904.11", "description": "Pepper of the genus Piper, neither crushed nor ground", "category": "agriculture"},
+    {"hs_code": "0910.11", "description": "Ginger, neither crushed nor ground", "category": "agriculture"},
+    {"hs_code": "1006.30", "description": "Semi-milled or wholly milled rice, whether or not polished or glazed", "category": "agriculture"},
+    {"hs_code": "1511.10", "description": "Crude palm oil", "category": "agriculture"},
+    {"hs_code": "1513.11", "description": "Crude coconut (copra) oil", "category": "agriculture"},
+    {"hs_code": "0306.17", "description": "Other shrimps and prawns, frozen", "category": "seafood"},
+    {"hs_code": "1604.14", "description": "Prepared or preserved tunas, skipjack and bonito", "category": "seafood"},
+    {"hs_code": "2101.11", "description": "Extracts, essences and concentrates of coffee", "category": "food_products"},
+    # Textiles & Apparel
+    {"hs_code": "5208.12", "description": "Plain weave unbleached cotton fabrics, weighing more than 100 g/m2", "category": "textiles"},
+    {"hs_code": "6109.10", "description": "T-shirts, singlets and other vests, of cotton, knitted or crocheted", "category": "apparel"},
+    {"hs_code": "6110.20", "description": "Jerseys, pullovers, cardigans, waistcoats of cotton, knitted", "category": "apparel"},
+    {"hs_code": "6214.10", "description": "Shawls, scarves, mufflers, mantillas, veils of silk or silk waste", "category": "apparel"},
+    # Electronics & Machinery
+    {"hs_code": "8471.30", "description": "Portable digital automatic data processing machines, weighing not more than 10 kg", "category": "electronics"},
+    {"hs_code": "8517.12", "description": "Telephones for cellular networks or other wireless networks", "category": "electronics"},
+    {"hs_code": "8443.32", "description": "Printers, copying machines and facsimile machines", "category": "electronics"},
+    {"hs_code": "8501.10", "description": "Electric motors of an output not exceeding 37.5 W", "category": "electronics"},
+    {"hs_code": "8504.40", "description": "Static converters, including power supplies and adapters", "category": "electronics"},
+    {"hs_code": "8541.40", "description": "Photosensitive semiconductor devices, including solar cells and panels", "category": "electronics"},
+    # Wood, Furniture & Handicrafts
+    {"hs_code": "4407.29", "description": "Wood sawn or chipped lengthwise, sliced or peeled, of tropical wood", "category": "wood"},
+    {"hs_code": "4421.99", "description": "Other articles of wood not elsewhere specified", "category": "wood"},
+    {"hs_code": "9403.89", "description": "Furniture of cane, osier, bamboo or similar materials", "category": "furniture"},
+    {"hs_code": "4602.11", "description": "Basketwork, wickerwork and other articles of vegetable plaiting materials, of bamboo", "category": "handicrafts"},
+    {"hs_code": "7113.19", "description": "Articles of jewellery and parts thereof, of precious metal", "category": "handicrafts"},
+    {"hs_code": "6802.29", "description": "Worked monumental or building stone and articles thereof", "category": "handicrafts"},
+    # Rubber & Automotive
+    {"hs_code": "4001.21", "description": "Natural rubber in smoked sheets", "category": "rubber"},
+    {"hs_code": "4011.10", "description": "New pneumatic tyres, of rubber, of a kind used on motor cars", "category": "automotive"},
+    # Beauty & Personal Care
+    {"hs_code": "3304.10", "description": "Lip make-up preparations including lipstick", "category": "beauty"},
+    {"hs_code": "3305.10", "description": "Shampoos and hair care preparations", "category": "beauty"},
+]
+
+_hs_codes_seeded = False
+
+
+async def _ensure_hs_codes_seeded() -> None:
+    """Seed hs_codes table with embeddings if empty. Runs once."""
+    global _hs_codes_seeded
+    if _hs_codes_seeded:
+        return
+    _hs_codes_seeded = True
+
+    db = get_supabase()
+    if db is None:
+        logger.warning("Supabase not configured — skipping HS codes seed")
+        return
+
+    existing = db.table("hs_codes").select("id", count="exact").limit(1).execute()
+    if existing.count and existing.count > 0:
+        logger.info("HS codes already seeded (%d rows)", existing.count)
+        return
+
+    logger.info("Seeding %d HS codes with embeddings...", len(HS_CODES_SEED))
+    for item in HS_CODES_SEED:
+        try:
+            embedding = await generate_embedding(f"{item['hs_code']} {item['description']}")
+            db.table("hs_codes").insert({
+                "hs_code": item["hs_code"],
+                "description": item["description"],
+                "category": item["category"],
+                "embedding": embedding,
+            }).execute()
+        except Exception as e:
+            logger.error("Failed to seed HS code '%s': %s", item["hs_code"], e)
+    logger.info("HS codes seeding complete")
+
+
+async def suggest_hs_codes(request: HSCodeSuggestRequest) -> HSCodeSuggestResponse:
+    """Suggest HS codes from a plain-language product description using semantic search + Gemini."""
+    await _ensure_hs_codes_seeded()
+
+    query = request.query
+    db = get_supabase()
+
+    if db is None:
+        # Fallback: simple keyword matching against seed data
+        query_lower = query.lower()
+        matches = [
+            HSCodeSuggestion(
+                hs_code=h["hs_code"],
+                description=h["description"],
+                confidence=0.5,
+                ai_explanation=f"This code covers {h['description'].lower()}.",
+            )
+            for h in HS_CODES_SEED
+            if any(word in h["description"].lower() for word in query_lower.split() if len(word) > 2)
+        ][:3]
+        return HSCodeSuggestResponse(suggestions=matches, query=query)
+
+    try:
+        query_embedding = await generate_embedding(query)
+        result = db.rpc("match_hs_codes", {
+            "query_embedding": query_embedding,
+            "match_threshold": 0.2,
+            "match_count": 5,
+        }).execute()
+
+        if not result.data:
+            return HSCodeSuggestResponse(suggestions=[], query=query)
+
+        top_matches = result.data[:3]
+
+        # Ask Gemini to generate plain-English explanations (non-fatal)
+        explanations: dict[str, str] = {}
+        try:
+            codes_text = "\n".join(
+                f"- HS {m['hs_code']}: {m['description']} (similarity: {m['similarity']:.2f})"
+                for m in top_matches
+            )
+
+            explanation_prompt = f"""The user searched for: "{query}"
+
+These HS codes were found as potential matches:
+{codes_text}
+
+For each HS code, write ONE concise sentence explaining to a small business owner why this code fits their product. Be specific and practical.
+
+Respond in JSON format:
+{{
+  "explanations": {{
+    "<hs_code>": "explanation sentence"
+  }}
+}}"""
+
+            raw = await generate(
+                explanation_prompt,
+                system_instruction="You are a customs classification expert helping small businesses understand HS codes. Be concise, clear, and helpful.",
+            )
+
+            cleaned = raw.strip()
+            if cleaned.startswith("```"):
+                cleaned = cleaned.split("\n", 1)[1]
+                cleaned = cleaned.rsplit("```", 1)[0]
+            parsed = json.loads(cleaned)
+            explanations = parsed.get("explanations", {})
+        except Exception as e:
+            logger.warning("Gemini explanation failed (non-fatal): %s", e)
+
+        suggestions = [
+            HSCodeSuggestion(
+                hs_code=m["hs_code"],
+                description=m["description"],
+                confidence=round(min(max(m["similarity"], 0), 1.0), 2),
+                ai_explanation=explanations.get(
+                    m["hs_code"],
+                    f"This code covers {m['description'].lower()}.",
+                ),
+            )
+            for m in top_matches
+        ]
+
+        return HSCodeSuggestResponse(suggestions=suggestions, query=query)
+
+    except Exception as e:
+        logger.error("HS code suggestion failed: %s", e)
+        return HSCodeSuggestResponse(suggestions=[], query=query)
 
 
 async def _ensure_regulations_seeded() -> None:
