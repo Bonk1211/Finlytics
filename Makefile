@@ -19,7 +19,7 @@ start:
 	@trap 'echo "Stopping services..."; kill 0' SIGINT; \
 	(cd frontend && npm run dev) & \
 	(cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8000) & \
-	(cd backend && source venv/bin/activate && fastmcp run app/mcp_tools:mcp --transport http --host 127.0.0.1 --port 8080 --reload) & \
+	(cd backend && source venv/bin/activate && fastmcp run app/mcp_tools/__init__.py:mcp --transport http --host 127.0.0.1 --port 8080 --reload) & \
 	wait
 
 dev: start
