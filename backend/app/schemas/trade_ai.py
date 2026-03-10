@@ -59,3 +59,24 @@ class TariffLookupResponse(BaseModel):
     required_documents: list[str] = []
     import_restrictions: list[str] = []
     ai_summary: str
+
+
+# --- Smart HS Code Matcher ---
+
+class HSCodeSuggestion(BaseModel):
+    """A single HS code suggestion with confidence and AI explanation."""
+    hs_code: str
+    description: str
+    confidence: float = Field(ge=0, le=1)
+    ai_explanation: str
+
+
+class HSCodeSuggestRequest(BaseModel):
+    """Request to find HS codes from a plain-language product description."""
+    query: str = Field(..., min_length=1, description="Product description in everyday language")
+
+
+class HSCodeSuggestResponse(BaseModel):
+    """Response with AI-suggested HS codes."""
+    suggestions: list[HSCodeSuggestion] = []
+    query: str
