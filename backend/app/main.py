@@ -11,6 +11,7 @@ app = FastAPI(
     title="BorneoHack MSME Trade AI",
     version="0.1.0",
     description="Multi-AI service platform for MSME cross-border trade",
+    lifespan=mcp.mcp_app.lifespan,
 )
 
 # --- CORS ---

@@ -10,12 +10,16 @@ install:
 
 start:
 	@echo "=========================================================="
-	@echo "Starting Backend (Port 8000) and Frontend (Port 3000)..."
+	@echo "Starting all services..."
+	@echo "  Frontend:      http://localhost:3000"
+	@echo "  Backend API:   http://localhost:8000"
+	@echo "  FastMCP:       http://localhost:8080/mcp/"
 	@echo "Press Ctrl+C to stop all services."
 	@echo "=========================================================="
 	@trap 'echo "Stopping services..."; kill 0' SIGINT; \
-	(cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8000) & \
 	(cd frontend && npm run dev) & \
+	(cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8000) & \
+	(cd backend && source venv/bin/activate && fastmcp run app/mcp_tools:mcp --transport http --host 127.0.0.1 --port 8080 --reload) & \
 	wait
 
 dev: start
@@ -25,4 +29,5 @@ stop:
 	-pkill -f "uvicorn app.main:app"
 	-pkill -f "npm run dev"
 	-pkill -f "node.*next"
+	-pkill -f "fastmcp run"
 	@echo "Services stopped."

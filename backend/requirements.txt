@@ -14,4 +14,4 @@ supabase>=2.0.0
 google-genai>=1.0.0
 
 # MCP
-mcp[cli]>=1.0.0
+fastmcp>=3.0.0
