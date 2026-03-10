@@ -5,21 +5,20 @@ Uses Gemini with a curated knowledge base of ASEAN trade regulations as context.
 
 import json
 import asyncio
-import chromadb
+import logging
 from app.schemas.trade_ai import (
     QueryRequest, QueryResponse, SourceDocument,
     ComplianceDocRequest, ComplianceDocResponse,
     TariffLookupRequest, TariffLookupResponse
 )
-from app.services.gemini_client import generate
+from app.services.gemini_client import generate, generate_embedding
 from app.services.agent import run_langgraph_agent
 from app.services.mem0_client import get_memories_async, add_memory_async
+from app.services.supabase_client import get_supabase
 
-# --- ChromaDB Vector Database setup ---
-_chroma_client = chromadb.Client()
-_collection = _chroma_client.get_or_create_collection(name="trade_regulations")
+logger = logging.getLogger(__name__)
 
-# --- Knowledge base (inserted into Vector DB) ---
+# --- Knowledge base seed data ---
 TRADE_REGULATIONS = [
     {
         "title": "ASEAN Trade in Goods Agreement (ATIGA)",
@@ -30,6 +29,7 @@ TRADE_REGULATIONS = [
             "tariff liberalization, non-tariff measures, trade facilitation, customs "
             "procedures, and standards and conformance."
         ),
+        "regulation_type": "agreement",
     },
     {
         "title": "ASEAN Harmonized Tariff Nomenclature (AHTN)",
@@ -39,6 +39,7 @@ TRADE_REGULATIONS = [
             "appropriate HS Code to determine applicable tariffs. The AHTN is updated "
             "every 5 years to align with the World Customs Organization nomenclature."
         ),
+        "regulation_type": "tariff",
     },
     {
         "title": "Certificate of Origin (CO) Requirements",
@@ -49,6 +50,7 @@ TRADE_REGULATIONS = [
             "Required supporting documents include commercial invoice, packing list, "
             "and bill of lading."
         ),
+        "regulation_type": "customs",
     },
     {
         "title": "Customs Declaration Procedures",
@@ -58,6 +60,7 @@ TRADE_REGULATIONS = [
             "and applicable permits or licenses for restricted goods. ASEAN Single Window "
             "facilitates electronic exchange of trade documents between member states."
         ),
+        "regulation_type": "customs",
     },
     {
         "title": "MSME Export Incentives",
@@ -68,6 +71,7 @@ TRADE_REGULATIONS = [
             "Indonesia has KUR loans, Thailand provides BOI incentives, and Vietnam "
             "offers VIETRADE support programs."
         ),
+        "regulation_type": "general",
     },
     {
         "title": "Restricted and Prohibited Goods",
@@ -77,6 +81,7 @@ TRADE_REGULATIONS = [
             "hazardous chemicals, and certain agricultural products requiring phytosanitary "
             "certificates. Import permits may be required for controlled items."
         ),
+        "regulation_type": "restriction",
     },
     {
         "title": "ASEAN Economic Community (AEC) Trade Provisions",
@@ -86,8 +91,71 @@ TRADE_REGULATIONS = [
             "mutual recognition arrangements, elimination of non-tariff barriers, and "
             "harmonization of standards across member states."
         ),
+        "regulation_type": "agreement",
     },
 ]
+
+_seeded = False
+
+
+async def _ensure_regulations_seeded() -> None:
+    """Seed trade_regulations table with embeddings if empty. Runs once."""
+    global _seeded
+    if _seeded:
+        return
+    _seeded = True
+
+    db = get_supabase()
+    if db is None:
+        logger.warning("Supabase not configured — skipping trade regulations seed")
+        return
+
+    existing = db.table("trade_regulations").select("id", count="exact").limit(1).execute()
+    if existing.count and existing.count > 0:
+        logger.info("Trade regulations already seeded (%d rows)", existing.count)
+        return
+
+    logger.info("Seeding %d trade regulations with embeddings...", len(TRADE_REGULATIONS))
+    for doc in TRADE_REGULATIONS:
+        try:
+            embedding = await generate_embedding(doc["content"])
+            db.table("trade_regulations").insert({
+                "title": doc["title"],
+                "content": doc["content"],
+                "regulation_type": doc["regulation_type"],
+                "embedding": embedding,
+            }).execute()
+        except Exception as e:
+            logger.error("Failed to seed regulation '%s': %s", doc["title"], e)
+    logger.info("Trade regulations seeding complete")
+
+
+async def _search_regulations(query: str, n_results: int = 3) -> list[dict]:
+    """Search trade regulations using pgvector similarity or fallback to text match."""
+    db = get_supabase()
+    if db is None:
+        # Fallback: return all regulations as context (no DB)
+        return [{"title": d["title"], "content": d["content"]} for d in TRADE_REGULATIONS[:n_results]]
+
+    try:
+        query_embedding = await generate_embedding(query)
+        result = db.rpc("match_trade_regulations", {
+            "query_embedding": query_embedding,
+            "match_threshold": 0.3,
+            "match_count": n_results,
+        }).execute()
+
+        if result.data:
+            return [{"title": r["title"], "content": r["content"], "similarity": r["similarity"]} for r in result.data]
+    except Exception as e:
+        logger.warning("pgvector search failed, falling back to text: %s", e)
+
+    # Fallback: simple text search
+    try:
+        result = db.table("trade_regulations").select("title, content").limit(n_results).execute()
+        return [{"title": r["title"], "content": r["content"]} for r in result.data]
+    except Exception:
+        return [{"title": d["title"], "content": d["content"]} for d in TRADE_REGULATIONS[:n_results]]
 
 SYSTEM_INSTRUCTION = """You are an expert ASEAN trade regulation advisor for MSMEs (Micro, Small and Medium Enterprises).
 
@@ -110,33 +178,20 @@ The confidence score should reflect how well the context documents address the q
 """
 
 
-# Ensure data is populated in Vector DB (simulates embedding generation)
-if _collection.count() == 0:
-    for i, doc in enumerate(TRADE_REGULATIONS):
-        _collection.add(
-            documents=[doc["content"]],
-            metadatas=[{"title": doc["title"]}],
-            ids=[f"doc_{i}"]
-        )
-
-
 async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
-    """Answer a trade regulation question using Gemini + Vector DB context."""
-    # Query ChromaDB Vector database
-    results = _collection.query(
-        query_texts=[request.question],
-        n_results=3
-    )
+    """Answer a trade regulation question using Gemini + Supabase pgvector context."""
+    # Ensure regulations are seeded on first call
+    await _ensure_regulations_seeded()
+
+    # Semantic search via Supabase pgvector
+    matched_docs = await _search_regulations(request.question, n_results=3)
 
     context_text = ""
     retrieved_titles = []
-    if results and results["documents"] and len(results["documents"][0]) > 0:
-        docs = results["documents"][0]
-        metadatas = results["metadatas"][0]
-        for idx, text in enumerate(docs):
-            title = metadatas[idx]["title"]
-            retrieved_titles.append(title)
-            context_text += f"### {title}\n{text}\n\n"
+    if matched_docs:
+        for doc in matched_docs:
+            retrieved_titles.append(doc["title"])
+            context_text += f"### {doc['title']}\n{doc['content']}\n\n"
     else:
         context_text = "No relevant context found in the database."
 
@@ -248,17 +303,21 @@ Please generate the document and respond in the JSON format specified."""
             cleaned = cleaned.rsplit("```", 1)[0]
         parsed = json.loads(cleaned)
 
-        return ComplianceDocResponse(
+        result = ComplianceDocResponse(
             document_title=parsed.get("document_title", request.document_type),
             document_content=parsed.get("document_content", raw_response),
             missing_information=parsed.get("missing_information", []),
         )
     except (json.JSONDecodeError, ValueError):
-        return ComplianceDocResponse(
+        result = ComplianceDocResponse(
             document_title=request.document_type,
             document_content=raw_response,
             missing_information=[],
         )
+
+    # Persist compliance document to Supabase
+    _persist_compliance_document(request, result)
+    return result
 
 
 TARIFF_SYSTEM_INSTRUCTION = """You are an ASEAN customs and tariff expert.
@@ -316,3 +375,40 @@ Respond in the JSON format specified."""
             import_restrictions=[],
             ai_summary=raw_response,
         )
+
+
+def _persist_compliance_document(
+    request: ComplianceDocRequest, result: ComplianceDocResponse
+) -> None:
+    """Log generated compliance document to Supabase. Never raises."""
+    try:
+        db = get_supabase()
+        if db is None:
+            return
+
+        # Map free-text document_type to enum value
+        doc_type_map = {
+            "certificate of origin": "certificate_of_origin",
+            "commercial invoice": "commercial_invoice",
+            "packing list": "packing_list",
+            "customs declaration": "customs_declaration",
+        }
+        doc_type = doc_type_map.get(
+            request.document_type.lower(), "other"
+        )
+
+        db.table("compliance_documents").insert({
+            "document_type": doc_type,
+            "origin_country": request.source_country,
+            "destination_country": request.destination_country,
+            "product_description": request.transaction_details.get("product", ""),
+            "hs_code": request.transaction_details.get("hs_code", ""),
+            "generated_content": {
+                "title": result.document_title,
+                "content": result.document_content,
+                "missing_information": result.missing_information,
+            },
+            "status": "draft",
+        }).execute()
+    except Exception as e:
+        logger.warning("Failed to persist compliance document: %s", e)

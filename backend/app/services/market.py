@@ -7,6 +7,7 @@ Provides:
 """
 
 import json
+import logging
 from datetime import date
 
 from app.schemas.market import (
@@ -15,6 +16,9 @@ from app.schemas.market import (
     PricingRequest, PricingResponse, PricingRecommendation,
 )
 from app.services.gemini_client import generate
+from app.services.supabase_client import get_supabase
+
+logger = logging.getLogger(__name__)
 
 INSIGHTS_SYSTEM = """You are an ASEAN market intelligence analyst specializing in MSME cross-border trade.
 
@@ -181,18 +185,22 @@ Respond in the JSON format specified."""
             for o in parsed.get("opportunities", [])
         ]
 
-        return MarketAnalysisResponse(
+        result = MarketAnalysisResponse(
             business_name=request.business_name,
             opportunities=opportunities,
             overall_strategy=parsed.get("overall_strategy", ""),
             economic_signals=parsed.get("economic_signals", []),
         )
     except (json.JSONDecodeError, ValueError, KeyError):
-        return MarketAnalysisResponse(
+        result = MarketAnalysisResponse(
             business_name=request.business_name,
             opportunities=[],
             overall_strategy=raw_response,
         )
+
+    # Persist market analysis to Supabase
+    _persist_market_analysis(request, result)
+    return result
 
 
 async def get_pricing_recommendation(request: PricingRequest) -> PricingResponse:
@@ -255,3 +263,34 @@ Respond in the JSON format specified."""
             market_position="mid-range",
             ai_summary=raw_response,
         )
+
+
+def _persist_market_analysis(
+    request: MarketAnalysisRequest, result: MarketAnalysisResponse
+) -> None:
+    """Log market analysis to Supabase. Never raises."""
+    try:
+        db = get_supabase()
+        if db is None:
+            return
+
+        for opp in result.opportunities:
+            db.table("market_predictions").insert({
+                "prediction_type": "demand",
+                "product_name": opp.product,
+                "region": opp.target_region,
+                "forecast_data": {
+                    "opportunity_score": opp.opportunity_score,
+                    "estimated_demand": opp.estimated_demand,
+                    "entry_strategy": opp.entry_strategy,
+                    "risks": opp.risks,
+                    "seasonal_notes": opp.seasonal_notes,
+                    "overall_strategy": result.overall_strategy,
+                    "economic_signals": result.economic_signals,
+                },
+                "confidence_score": opp.opportunity_score,
+                "recommendations": [opp.entry_strategy],
+                "valid_from": date.today().isoformat(),
+            }).execute()
+    except Exception as e:
+        logger.warning("Failed to persist market analysis: %s", e)

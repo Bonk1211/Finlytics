@@ -5,8 +5,12 @@ mobile payments, digital transactions, supplier relationships, etc.
 """
 
 import json
+import logging
 from app.schemas.credit import CreditScoreRequest, CreditScoreResponse
 from app.services.gemini_client import generate
+from app.services.supabase_client import get_supabase
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_INSTRUCTION = """You are an expert alternative credit scoring analyst for MSMEs in ASEAN.
 
@@ -91,7 +95,7 @@ Respond in the JSON format specified."""
         if risk_category not in ("low", "medium", "high"):
             risk_category = "medium"
 
-        return CreditScoreResponse(
+        result = CreditScoreResponse(
             business_name=request.business_name,
             credit_score=credit_score,
             risk_probability=round(risk_probability, 3),
@@ -102,7 +106,7 @@ Respond in the JSON format specified."""
             factors=parsed.get("factors", []),
         )
     except (json.JSONDecodeError, ValueError, KeyError):
-        return CreditScoreResponse(
+        result = CreditScoreResponse(
             business_name=request.business_name,
             credit_score=500,
             risk_probability=0.5,
@@ -111,3 +115,36 @@ Respond in the JSON format specified."""
             max_loan_amount=0,
             factors=[],
         )
+
+    # Persist assessment to Supabase (fire-and-forget)
+    _persist_credit_assessment(request, result)
+    return result
+
+
+def _persist_credit_assessment(
+    request: CreditScoreRequest, result: CreditScoreResponse
+) -> None:
+    """Log credit assessment to Supabase. Non-blocking, never raises."""
+    try:
+        db = get_supabase()
+        if db is None:
+            return
+
+        risk_map = {"low": "Low", "medium": "Medium", "high": "High"}
+
+        db.table("credit_assessments").insert({
+            "smart_credit_score": result.credit_score,
+            "risk_level": risk_map.get(result.risk_category, "Medium"),
+            "loan_suggestion": result.loan_recommendation,
+            "matched_lenders": [],
+            "assessment_data": {
+                "business_name": request.business_name,
+                "monthly_revenue": request.monthly_revenue,
+                "risk_probability": result.risk_probability,
+                "max_loan_amount": result.max_loan_amount,
+                "suggested_interest_rate": result.suggested_interest_rate,
+                "factors": result.factors,
+            },
+        }).execute()
+    except Exception as e:
+        logger.warning("Failed to persist credit assessment: %s", e)
