@@ -135,7 +135,6 @@ export default function DashboardPage() {
                 <ArrowDownRight className="h-4 w-4" />
               </div>
             </div>
-            <div className="absolute top-4 right-5 text-sm font-bold text-red-500">-0.2%</div>
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-amber-500 opacity-20" />
           </div>
 
