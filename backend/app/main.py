@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
-from app.routers import health, trade_ai, document_ai, translation, inventory, credit, market, supply_chain, dashboard, mcp
+from app.routers import health, trade_ai, document_ai, translation, inventory, credit, market, supply_chain, dashboard, mcp, chatbot
 
 load_dotenv()
 
@@ -35,6 +35,7 @@ app.include_router(market.router, prefix="/api")
 app.include_router(supply_chain.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
 app.include_router(mcp.router, prefix="/api")
+app.include_router(chatbot.router, prefix="/api")
 
 
 @app.get("/")

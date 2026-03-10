@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Send, Bot, Sparkles, FileText, TrendingUp } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "user" | "assistant";
@@ -18,6 +20,15 @@ export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -27,18 +38,28 @@ export default function AIChat() {
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
 
-    // TODO: Connect to backend AI endpoint
-    setTimeout(() => {
+    try {
+      const res = await fetch("http://localhost:8000/api/chatbot/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+      });
+      const data = await res.json();
+      
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content:
-            "I'm your MSME Growth AI assistant. This feature will be connected to the backend AI service. How can I help you with credit scoring, trade compliance, or market analysis?",
+          content: data.response || "Sorry, I couldn't process that right now.",
         },
       ]);
-      setIsLoading(false);
-    }, 1000);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Error: Unable to connect to the backend AI service." },
+      ]);
+    }
+    setIsLoading(false);
   };
 
   const handleQuickAction = (label: string) => {
@@ -102,12 +123,39 @@ export default function AIChat() {
               <div
                 className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm"
                 style={{
-                  background:
-                    msg.role === "user" ? "var(--color-primary)" : "var(--bg-app)",
+                  background: msg.role === "user" ? "var(--color-primary)" : "var(--bg-app)",
                   color: msg.role === "user" ? "#fff" : "var(--text-primary)",
+                  border: msg.role === "assistant" ? "1px solid var(--border-color)" : "none",
                 }}
               >
-                {msg.content}
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({ node, ...props }: any) => <p className="mb-2 last:mb-0" {...props} />,
+                      strong: ({ node, ...props }: any) => <strong className="font-bold text-gray-900" {...props} />,
+                      ul: ({ node, ...props }: any) => <ul className="list-disc pl-4 mb-2" {...props} />,
+                      ol: ({ node, ...props }: any) => <ol className="list-decimal pl-4 mb-2" {...props} />,
+                      li: ({ node, ...props }: any) => <li className="mb-1" {...props} />,
+                      img: ({ node, ...props }: any) => <img className="rounded-lg my-2 max-w-full shadow-sm" {...props} />,
+                      h3: ({ node, ...props }: any) => <h3 className="text-sm font-bold text-gray-900 mt-3 mb-1" {...props} />,
+                      h2: ({ node, ...props }: any) => <h2 className="text-base font-bold text-gray-900 mt-3 mb-1" {...props} />,
+                      hr: () => <hr className="my-3 border-gray-200" />,
+                      table: ({ node, ...props }: any) => (
+                        <div className="overflow-x-auto my-2">
+                          <table className="w-full text-xs border-collapse border border-gray-200 rounded-lg" {...props} />
+                        </div>
+                      ),
+                      thead: ({ node, ...props }: any) => <thead className="bg-gray-100" {...props} />,
+                      th: ({ node, ...props }: any) => <th className="border border-gray-200 px-2 py-1.5 text-left font-semibold text-gray-700" {...props} />,
+                      td: ({ node, ...props }: any) => <td className="border border-gray-200 px-2 py-1.5 text-gray-600" {...props} />,
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
               </div>
             </div>
           ))
@@ -118,10 +166,13 @@ export default function AIChat() {
               className="rounded-2xl px-4 py-2.5 text-sm"
               style={{ background: "var(--bg-app)", color: "var(--text-tertiary)" }}
             >
-              <span className="animate-pulse">Thinking...</span>
+              <span className="animate-pulse flex gap-1 items-center">
+                <Bot className="w-3.5 h-3.5"/> Processing...
+              </span>
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}

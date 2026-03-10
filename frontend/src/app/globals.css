@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 /* ============================================================
-   Neutrade Design System - Theme Tokens
+   Finlytics Design System - Theme Tokens
    ============================================================ */
 :root {
   /* Backgrounds */
-  --bg-app: #F4F5F7;
+  --bg-app: #F8FAFC;
   --bg-card: #FFFFFF;
   --bg-sidebar: #FFFFFF;
-  --bg-sidebar-active: #F0F1F3;
+  --bg-sidebar-active: #ECFDF5;
 
-  /* Primary Brand */
-  --color-primary: #3B82F6;
-  --color-primary-hover: #2563EB;
-  --color-primary-light: #EFF6FF;
+  /* Primary Brand (Vibrant Green) */
+  --color-primary: #10B981;
+  --color-primary-hover: #059669;
+  --color-primary-light: #D1FAE5;
 
   /* Text */
-  --text-primary: #1A1A2E;
-  --text-secondary: #6B7280;
-  --text-tertiary: #9CA3AF;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-tertiary: #94A3B8;
 
   /* Semantic / Status */
   --color-success: #10B981;
@@ -34,17 +34,17 @@
   --color-ai-purple: #8B5CF6;
 
   /* Geometry */
-  --radius-card: 20px;
-  --radius-button: 9999px;
-  --radius-badge: 10px;
-  --radius-input: 12px;
+  --radius-card: 16px;
+  --radius-button: 8px;
+  --radius-badge: 6px;
+  --radius-input: 8px;
 
   /* Shadows */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 
   /* Spacing */
-  --padding-card: 24px;
+  --padding-card: 20px;
   --sidebar-width: 260px;
 
   /* Font */

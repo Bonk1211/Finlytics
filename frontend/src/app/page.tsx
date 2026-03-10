@@ -2,208 +2,387 @@
 
 import {
   DollarSign,
-  CreditCard,
-  Globe,
   TrendingUp,
+  TrendingDown,
   ArrowUpRight,
   ArrowDownRight,
-  ShieldCheck,
-  FileText,
-  BarChart3,
+  Search,
+  Calendar,
+  Download,
+  ExternalLink,
+  ChevronDown,
+  Printer,
+  Plus,
+  X,
+  Briefcase,
+  User as UserIcon,
+  ShoppingBag
 } from "lucide-react";
-import MetricCard from "@/components/metric-card";
-import ChartCard from "@/components/chart-card";
-import AIChat from "@/components/ai-chat";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
 
-// ── Mock data for dashboard ──
-const revenueData = [
-  { name: "Jul", value: 12400 },
-  { name: "Aug", value: 14800 },
-  { name: "Sep", value: 13200 },
-  { name: "Oct", value: 16700 },
-  { name: "Nov", value: 18100 },
-  { name: "Dec", value: 17200 },
-  { name: "Jan", value: 19500 },
-  { name: "Feb", value: 21300 },
-  { name: "Mar", value: 23800 },
+// ── Mock data for "Cash Flow Insights" ──
+// Mimicking a waterfall/stacked bar positive/negative spread
+const cashFlowData = Array.from({ length: 31 }, (_, i) => ({
+  day: i + 1,
+  cashIn: Math.floor(Math.random() * 30000) + 20000,
+  cashOut: -(Math.floor(Math.random() * 20000) + 10000),
+}));
+
+// ── Mock data for "Profit & Loss Monitoring" ──
+const pnlData = [
+  { time: "10:00 AM", income: 200, expenses: 150, profit: 50 },
+  { time: "11:00 AM", income: 400, expenses: 370, profit: 30 },
+  { time: "12:00 PM", income: 770, expenses: 400, profit: 370 },
+  { time: "1:00 PM", income: 800, expenses: 450, profit: 350 },
+  { time: "2:00 PM", income: 1000, expenses: 500, profit: 500 },
+  { time: "3:00 PM", income: 1000, expenses: 500, profit: 500 },
+  { time: "4:00 PM", income: 1000, expenses: 500, profit: 500 },
+  { time: "5:00 PM", income: 1000, expenses: 500, profit: 500 },
 ];
-
-const tradeVolumeData = [
-  { name: "Jul", value: 45 },
-  { name: "Aug", value: 52 },
-  { name: "Sep", value: 48 },
-  { name: "Oct", value: 61 },
-  { name: "Nov", value: 55 },
-  { name: "Dec", value: 67 },
-  { name: "Jan", value: 72 },
-  { name: "Feb", value: 78 },
-  { name: "Mar", value: 85 },
-];
-
-const RECENT_ACTIVITIES = [
-  {
-    type: "credit",
-    label: "Credit Assessment Completed",
-    detail: "Score: 742 — Low Risk",
-    time: "2 hours ago",
-    positive: true,
-  },
-  {
-    type: "trade",
-    label: "Compliance Doc Generated",
-    detail: "Certificate of Origin — MY → SG",
-    time: "5 hours ago",
-    positive: true,
-  },
-  {
-    type: "market",
-    label: "Supply Chain Alert",
-    detail: "Palm oil price spike detected (+8.2%)",
-    time: "1 day ago",
-    positive: false,
-  },
-  {
-    type: "credit",
-    label: "Loan Match Found",
-    detail: "Tier 1 Micro-finance — RM 50,000",
-    time: "2 days ago",
-    positive: true,
-  },
-  {
-    type: "market",
-    label: "Market Forecast Updated",
-    detail: "Q2 demand forecast for electronics",
-    time: "3 days ago",
-    positive: true,
-  },
-];
-
-const activityIcons: Record<string, { icon: typeof CreditCard; bg: string; color: string }> = {
-  credit: { icon: ShieldCheck, bg: "var(--color-success-light)", color: "var(--color-success)" },
-  trade: { icon: FileText, bg: "var(--color-primary-light)", color: "var(--color-primary)" },
-  market: { icon: BarChart3, bg: "var(--color-warning-light)", color: "var(--color-warning)" },
-};
 
 export default function DashboardPage() {
   return (
-    <div>
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
-          Dashboard
+    <div className="flex flex-col gap-6">
+      {/* ── Top Header Bar ── */}
+      <div className="flex items-center justify-between pb-2">
+        <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
+          Dashboard Overview
         </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-          Overview of your MSME business performance across ASEAN markets
-        </p>
-      </div>
+        <div className="flex items-center gap-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search finance data..."
+              className="pl-9 pr-8 py-2 w-64 rounded-full border border-gray-200 text-sm focus:outline-none focus:border-green-500 transition-colors"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              <span className="text-[10px] bg-gray-100 border border-gray-200 rounded px-1 text-gray-400 font-mono">⌘</span>
+              <span className="text-[10px] bg-gray-100 border border-gray-200 rounded px-1 text-gray-400 font-mono">P</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-500">Report Currency</span>
+            <button className="flex items-center gap-1 text-sm font-semibold border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50">
+              USD <ChevronDown className="h-4 w-4 text-gray-400" />
+            </button>
+          </div>
 
-      {/* Metrics Row — Bento Box */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-        <MetricCard
-          title="Monthly Revenue"
-          value="$23,800"
-          subtitle="March 2026"
-          change={{ value: "12.3%", positive: true }}
-          icon={DollarSign}
-        />
-        <MetricCard
-          title="Smart Credit Score"
-          value="742"
-          subtitle="Low Risk"
-          change={{ value: "18 pts", positive: true }}
-          icon={CreditCard}
-          iconBg="var(--color-success-light)"
-        />
-        <MetricCard
-          title="Active Trade Routes"
-          value="5"
-          subtitle="MY, SG, ID, TH, VN"
-          icon={Globe}
-          iconBg="var(--color-ai-lavender)"
-        />
-        <MetricCard
-          title="Market Sentiment"
-          value="Bullish"
-          subtitle="ASEAN Electronics"
-          change={{ value: "3.2%", positive: true }}
-          icon={TrendingUp}
-          iconBg="var(--color-warning-light)"
-        />
-      </div>
-
-      {/* Charts Row — Bento Box */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
-        <ChartCard
-          title="Revenue Trend"
-          subtitle="Last 9 months"
-          data={revenueData}
-          color="#3B82F6"
-          headerRight={
-            <span className="badge badge-success">
-              <ArrowUpRight className="h-3 w-3" /> 12.3%
+          <div className="flex items-center gap-2 text-sm font-medium border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+            <span className="text-gray-500">Report Date</span>
+            <span className="text-gray-800 font-semibold flex items-center gap-2">
+              19 Jan, 2025 <Calendar className="h-4 w-4 text-gray-400" />
             </span>
-          }
-        />
-        <ChartCard
-          title="Cross-Border Shipments"
-          subtitle="Monthly trade volume"
-          data={tradeVolumeData}
-          color="#8B5CF6"
-          headerRight={
-            <span className="badge badge-success">
-              <ArrowUpRight className="h-3 w-3" /> 8.9%
-            </span>
-          }
-        />
+          </div>
+
+          <button className="flex items-center gap-2 bg-green-100 hover:bg-green-200 text-green-700 font-bold text-sm px-4 py-2 rounded-lg transition-colors">
+            <Download className="h-4 w-4" />
+            Export Data
+          </button>
+        </div>
       </div>
 
-      {/* Bottom Row — Activities + AI Chat */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        {/* Recent Activities */}
-        <div className="lg:col-span-3 card">
-          <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
-            Recent Activities
-          </h3>
-          <div className="space-y-3">
-            {RECENT_ACTIVITIES.map((activity, i) => {
-              const { icon: Icon, bg, color } = activityIcons[activity.type];
-              return (
-                <div key={i} className="flex items-center gap-3">
-                  <div
-                    className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0"
-                    style={{ background: bg }}
-                  >
-                    <Icon className="h-4 w-4" style={{ color }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                      {activity.label}
-                    </p>
-                    <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
-                      {activity.detail}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {activity.positive ? (
-                      <ArrowUpRight className="h-3.5 w-3.5" style={{ color: "var(--color-success)" }} />
-                    ) : (
-                      <ArrowDownRight className="h-3.5 w-3.5" style={{ color: "var(--color-danger)" }} />
-                    )}
-                    <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
-                      {activity.time}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+      {/* ── Welcome Title ── */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Good Morning, Alex!</h2>
+        <p className="text-sm text-gray-500">Take a look at a glance of all your business how going</p>
+      </div>
+
+      {/* ── Main Dashboard Grid ── */}
+      <div className="grid grid-cols-12 gap-6">
+        
+        {/* Left Column: 3 Metric Cards (Span 3) */}
+        <div className="col-span-12 xl:col-span-3 flex flex-col gap-4">
+          {/* Total Revenue */}
+          <div className="bg-white rounded-[16px] p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <DollarSign className="h-4 w-4" /> Total Revenue
+              </div>
+              <button className="text-[11px] font-semibold flex items-center gap-1 border border-gray-200 rounded px-2 py-0.5 hover:bg-gray-50">
+                Analytics <ExternalLink className="h-3 w-3" />
+              </button>
+            </div>
+            <div className="flex items-baseline gap-3 mt-4">
+              <span className="text-3xl font-bold tracking-tight text-gray-900">$45,672K</span>
+              <span className="flex items-center text-sm font-bold text-green-500">
+                <ArrowUpRight className="h-4 w-4 mr-0.5" /> 56%
+              </span>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 opacity-20" />
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-green-50 rounded-full blur-2xl pointer-events-none" />
+          </div>
+
+          {/* Expenses */}
+          <div className="bg-white rounded-[16px] p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <TrendingDown className="h-4 w-4" /> Expenses
+              </div>
+              <button className="text-[11px] font-semibold flex items-center gap-1 border border-gray-200 rounded px-2 py-0.5 hover:bg-gray-50">
+                Report Manager <ExternalLink className="h-3 w-3" />
+              </button>
+            </div>
+            <div className="flex items-baseline gap-3 mt-4">
+              <span className="text-3xl font-bold tracking-tight text-gray-900">$28,903K</span>
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-red-50 text-red-500">
+                <ArrowDownRight className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-amber-500 opacity-20" />
+          </div>
+
+          {/* Net Profit */}
+          <div className="bg-white rounded-[16px] p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <TrendingUp className="h-4 w-4" /> Net Profit
+              </div>
+              <button className="text-[11px] font-semibold flex items-center gap-1 border border-gray-200 rounded px-2 py-0.5 hover:bg-gray-50">
+                P&L <ExternalLink className="h-3 w-3" />
+              </button>
+            </div>
+            <div className="flex items-baseline gap-3 mt-4">
+              <span className="text-3xl font-bold tracking-tight text-gray-900">$34,215K</span>
+              <span className="flex items-center text-sm font-bold text-green-500">
+                <ArrowUpRight className="h-4 w-4 mr-0.5" /> 56%
+              </span>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-green-500 opacity-20" />
           </div>
         </div>
 
-        {/* AI Chat Widget */}
-        <div className="lg:col-span-2">
-          <AIChat />
+        {/* Top Right Chart: Cash Flow Insights (Span 9) */}
+        <div className="col-span-12 xl:col-span-9 bg-white rounded-[16px] border border-gray-100 shadow-sm p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-bold text-gray-900">Cash Flow Insights</h3>
+            <div className="flex space-x-2 text-xs font-semibold">
+              <button className="px-3 py-1 text-gray-500 hover:text-gray-900">Monthly</button>
+              <button className="px-3 py-1 text-gray-500 hover:text-gray-900">Weekly</button>
+              <button className="px-3 py-1 text-gray-500 hover:text-gray-900">Daily</button>
+              <button className="px-3 py-1 bg-gray-100 text-gray-900 rounded-md">Daily-Columns</button>
+            </div>
+          </div>
+          <div className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={cashFlowData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barGap={0} barSize={12}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} />
+                <RechartsTooltip cursor={{ fill: 'transparent' }} />
+                <Bar dataKey="cashIn" fill="#10B981" radius={[4, 4, 4, 4]} />
+                <Bar dataKey="cashOut" fill="#FBBF24" radius={[4, 4, 4, 4]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex items-center justify-center gap-6 mt-4 opacity-80">
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-green-500"></div> Cash In</div>
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-yellow-400"></div> Cash Out</div>
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-4 h-0.5 bg-gray-400"></div> Net Cash</div>
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full border-2 border-gray-400 bg-white"></div> Running Balance</div>
+          </div>
         </div>
       </div>
+
+      {/* ── Second Row ── */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* P&L Monitoring (Span 12) */}
+        <div className="col-span-12 xl:col-span-12 bg-white rounded-[16px] border border-gray-100 shadow-sm p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-bold text-gray-900">Profit & Loss Monitoring</h3>
+            <div className="flex space-x-2 text-xs font-semibold">
+              <button className="px-3 py-1 text-gray-500 hover:text-gray-900">Monthly</button>
+              <button className="px-3 py-1 text-gray-500 hover:text-gray-900">Weekly</button>
+              <button className="px-3 py-1 text-gray-500 hover:text-gray-900">Daily</button>
+              <button className="px-3 py-1 bg-gray-100 text-gray-900 rounded-md">Hourly</button>
+            </div>
+          </div>
+          <div className="h-[200px] w-full relative">
+             <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={pnlData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} tickFormatter={(val) => `${val}%`} />
+                <RechartsTooltip />
+                <Line type="stepAfter" dataKey="income" stroke="#FBBF24" strokeWidth={2} dot={false} />
+                <Line type="stepAfter" dataKey="expenses" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                <Line type="stepAfter" dataKey="profit" stroke="#10B981" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex items-center justify-center gap-6 mt-4 opacity-80">
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-yellow-400"></div> Total Income</div>
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-blue-500"></div> Expenses</div>
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-green-500"></div> Net Profit</div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── Third Row: Smart Process Manager ── */}
+      <div className="bg-white rounded-[16px] border border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-12 mt-2">
+        {/* Header */}
+        <div className="flex justify-between items-center p-5 border-b border-gray-100">
+          <h3 className="font-bold text-gray-900 text-sm">Smart Process Manager</h3>
+          <button className="flex items-center gap-2 text-xs font-semibold text-gray-600 border border-gray-200 rounded-md px-3 py-1.5 hover:bg-gray-50 bg-white transition-colors">
+            Print <Printer className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* 3 Columns Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-4 min-h-[400px]">
+           {/* Left Column */}
+           <div className="border-r border-gray-100 p-5 flex flex-col gap-4 bg-white/50">
+              <div className="flex justify-between items-center mb-1">
+                 <h4 className="font-bold text-gray-800 text-xs">Insight Metrics Automation</h4>
+                 <Plus className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-900" />
+              </div>
+              <div className="relative mb-2">
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                 <input placeholder="Search finance data..." className="w-full text-xs pl-9 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-300" />
+                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[9px] text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                   ⌘ P
+                 </div>
+              </div>
+              
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <X className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Automation Coverage</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Your last week is better <span className="font-bold text-gray-700">72%</span></p>
+              </div>
+
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <Plus className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Business Flow Track - A</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5 mb-3">Trigger when market is going high</p>
+                 <div className="flex gap-1.5">
+                   <div className="h-1.5 bg-emerald-400 flex-1 rounded-full"></div>
+                   <div className="h-1.5 bg-amber-400 flex-1 rounded-full"></div>
+                   <div className="h-1.5 bg-purple-500 flex-1 rounded-full"></div>
+                 </div>
+              </div>
+           </div>
+
+           {/* Middle Grid (Diagram) */}
+           <div className="col-span-2 relative bg-gray-50 p-8 flex items-center justify-center overflow-hidden border-r border-gray-100">
+               {/* Decorative dotted background */}
+               <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(#9ca3af 1px, transparent 1px)", backgroundSize: "20px 20px" }}></div>
+               
+               <div className="relative z-10 w-full h-full min-h-[300px]">
+
+                  {/* Nodes */}
+                  <div className="absolute left-[5%] top-1/2 -translate-y-1/2 flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <Briefcase className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Customer Satisfaction</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Our customers' happiness is our top priority</div>
+                     </div>
+                  </div>
+
+                  {/* SVG connecting paths */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 10 }}>
+                     <path d="M 230 150 L 320 150 L 320 80 L 360 80" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     <path d="M 320 150 L 320 220 L 400 220" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     <path d="M 320 150 L 360 150" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     
+                     <path d="M 400 220 L 480 220 L 480 250 L 500 250" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     {/* Connectors to simulate branching */}
+                     <circle cx="320" cy="150" r="3" fill="#9ca3af" />
+                     <circle cx="480" cy="220" r="3" fill="#9ca3af" />
+                     <path d="M 320 150 L 320 280 L 360 280" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeDasharray="4 2" />
+                  </svg>
+
+                  {/* Colored Operational Blocks */}
+                  <div className="absolute left-[38%] top-[45%] -translate-y-1/2 w-20 h-7 bg-blue-600 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[52%] top-[50%] -translate-y-1/2 w-[70px] h-7 bg-amber-400 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[50%] top-[65%] -translate-y-1/2 w-24 h-[30px] bg-emerald-400 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[78%] top-[70%] w-3.5 h-[34px] bg-blue-600 rounded-md z-20 shadow-sm"></div>
+
+                  {/* Node 2 */}
+                  <div className="absolute left-[40%] top-[15%] flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <UserIcon className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Automation Coverage</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Your last week is better 72%</div>
+                     </div>
+                  </div>
+
+                  {/* Node 3 */}
+                  <div className="absolute right-[5%] top-[52%] flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <ShoppingBag className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Performance Optimization</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Improving efficiency by 50%</div>
+                     </div>
+                  </div>
+                  
+                  {/* Node 4 */}
+                  <div className="absolute left-[45%] bottom-[5%] flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <UserIcon className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Customer Satisfaction</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Our customers' happiness is our top priority</div>
+                     </div>
+                  </div>
+
+               </div>
+           </div>
+
+           {/* Right Column */}
+           <div className="p-5 flex flex-col gap-4 bg-white/50">
+              <div className="flex justify-between items-center mb-1">
+                 <h4 className="font-bold text-gray-800 text-xs">Exception Manager Automation</h4>
+                 <Plus className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-900" />
+              </div>
+              <div className="relative mb-2">
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                 <input placeholder="Search finance data..." className="w-full text-xs pl-9 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-300" />
+                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[9px] text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                   ⌘ P
+                 </div>
+              </div>
+              
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <X className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Automation Coverage</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Your last week is better <span className="font-bold text-gray-700">72%</span></p>
+              </div>
+
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <Plus className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Business Flow Track - A</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Trigger when market is going high</p>
+              </div>
+              
+               <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all opacity-70">
+                 <Plus className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Business Flow Track - B</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Trigger when market is going low</p>
+              </div>
+           </div>
+        </div>
+      </div>
+
     </div>
   );
 }
