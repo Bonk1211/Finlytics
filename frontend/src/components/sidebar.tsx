@@ -4,91 +4,125 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  CreditCard,
-  Globe,
-  TrendingUp,
+  Settings,
+  ListTodo,
+  AlertOctagon,
+  Activity,
+  Package,
+  Receipt,
+  FileText,
+  PieChart,
+  BookOpen,
+  Scale,
+  Database,
+  Link as LinkIcon,
+  ShieldCheck,
   Bot,
-  ChevronRight,
+  ArrowDownToLine,
+  Lock,
+  HeartHandshake,
+  User,
   Boxes,
+  Globe
 } from "lucide-react";
 import clsx from "clsx";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/credit", label: "Credit Scoring", icon: CreditCard },
-  { href: "/trade", label: "Trade Navigator", icon: Globe },
-  { href: "/market", label: "Market Analysis", icon: TrendingUp },
-  { href: "/ai", label: "AI Assistant", icon: Bot },
+const NAV_SECTIONS = [
+  {
+    title: "FINANCIAL MANAGEMENT",
+    items: [
+      { href: "/", label: "Dashboard Overview", icon: LayoutDashboard },
+      { href: "/process-manager", label: "Process Manager", icon: ListTodo },
+      { href: "/exception-manager", label: "Exception Manager", icon: AlertOctagon },
+    ]
+  },
+  {
+    title: "OPERATION & REPORTING",
+    items: [
+      { href: "/pnl-monitoring", label: "Profit & Loss Monitoring", icon: Activity },
+      { href: "/inventory", label: "Stock Inventory", icon: Package },
+      { href: "/price-verification", label: "Indt. Price Verification", icon: Receipt },
+      { href: "/report-manager", label: "Report Manager", icon: FileText },
+      { href: "/analytics", label: "Analytics", icon: PieChart },
+    ]
+  },
+  {
+    title: "COMPLIANCE & RISK MANAGEMENT",
+    items: [
+      { href: "/accounting", label: "Accounting", icon: BookOpen },
+      { href: "/regulatory", label: "Regulatory", icon: Scale },
+    ]
+  },
+  {
+    title: "DATA & AUTOMATION",
+    items: [
+      { href: "/market-data", label: "Market Data", icon: Database },
+      { href: "/reference-data", label: "Reference Data", icon: LinkIcon },
+      { href: "/policies", label: "Policies & Rules", icon: ShieldCheck },
+      { href: "/finance-assist", label: "AI-Finance Assist", icon: Bot },
+      { href: "/data-import", label: "Data Import", icon: ArrowDownToLine },
+      { href: "/worldmonitor", label: "World Monitor", icon: Globe },
+    ]
+  },
+  {
+    title: "ADMIN SETTINGS",
+    items: [
+      { href: "/security", label: "Security", icon: Lock },
+      { href: "/support", label: "Help & Support", icon: HeartHandshake },
+      { href: "/account", label: "Account Settings", icon: User },
+    ]
+  }
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar overflow-y-auto custom-scrollbar">
       {/* Brand */}
-      <div className="flex items-center gap-3 px-2 mb-8">
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-xl"
-          style={{ background: "var(--color-primary)" }}
-        >
-          <Boxes className="h-5 w-5 text-white" />
+      <div className="flex items-center gap-2 px-2 mb-8">
+        <div className="flex text-green-500">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
         </div>
         <div>
-          <h1 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
-            MSME Growth
+          <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
+            Finlytics
           </h1>
-          <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
-            AI Platform
-          </p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-col gap-1 flex-1">
-        <p
-          className="text-xs font-semibold uppercase tracking-wider px-4 mb-2"
-          style={{ color: "var(--text-tertiary)" }}
-        >
-          Menu
-        </p>
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={clsx("sidebar-link", isActive && "active")}
-            >
-              <Icon className="h-[18px] w-[18px]" />
-              <span className="flex-1">{label}</span>
-              {isActive && (
-                <ChevronRight className="h-4 w-4" style={{ color: "var(--text-tertiary)" }} />
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex flex-col gap-6 flex-1">
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.title}>
+            <p className="text-[10px] font-semibold uppercase tracking-wider px-4 mb-2 text-gray-400">
+              {section.title}
+            </p>
+            <div className="flex flex-col gap-1">
+              {section.items.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={clsx(
+                      "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150",
+                      isActive 
+                        ? "bg-green-50 text-green-600" 
+                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                    <span className="flex-1">{label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
-
-      {/* AI Promo Card */}
-      <div
-        className="rounded-2xl p-4 mt-4"
-        style={{
-          background: "linear-gradient(135deg, var(--color-ai-purple), var(--color-primary))",
-        }}
-      >
-        <Bot className="h-8 w-8 text-white mb-2 opacity-80" />
-        <p className="text-sm font-semibold text-white">AI-Powered Insights</p>
-        <p className="text-xs text-white/70 mt-1">
-          Get instant analysis for your ASEAN business
-        </p>
-        <Link
-          href="/ai"
-          className="mt-3 inline-block text-xs font-semibold text-white bg-white/20 rounded-full px-3 py-1.5 hover:bg-white/30 transition"
-        >
-          Try Now
-        </Link>
-      </div>
     </aside>
   );
 }

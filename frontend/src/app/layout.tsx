@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/sidebar";
+import RightChatSidebar from "@/components/right-chat-sidebar";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         >
           {children}
         </main>
+        <RightChatSidebar />
       </body>
     </html>
   );
