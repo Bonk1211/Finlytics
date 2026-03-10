@@ -10,7 +10,13 @@ import {
   Calendar,
   Download,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  Printer,
+  Plus,
+  X,
+  Briefcase,
+  User as UserIcon,
+  ShoppingBag
 } from "lucide-react";
 import {
   BarChart,
@@ -223,6 +229,158 @@ export default function DashboardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* ── Third Row: Smart Process Manager ── */}
+      <div className="bg-white rounded-[16px] border border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-12 mt-2">
+        {/* Header */}
+        <div className="flex justify-between items-center p-5 border-b border-gray-100">
+          <h3 className="font-bold text-gray-900 text-sm">Smart Process Manager</h3>
+          <button className="flex items-center gap-2 text-xs font-semibold text-gray-600 border border-gray-200 rounded-md px-3 py-1.5 hover:bg-gray-50 bg-white transition-colors">
+            Print <Printer className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* 3 Columns Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-4 min-h-[400px]">
+           {/* Left Column */}
+           <div className="border-r border-gray-100 p-5 flex flex-col gap-4 bg-white/50">
+              <div className="flex justify-between items-center mb-1">
+                 <h4 className="font-bold text-gray-800 text-xs">Insight Metrics Automation</h4>
+                 <Plus className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-900" />
+              </div>
+              <div className="relative mb-2">
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                 <input placeholder="Search finance data..." className="w-full text-xs pl-9 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-300" />
+                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[9px] text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                   ⌘ P
+                 </div>
+              </div>
+              
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <X className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Automation Coverage</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Your last week is better <span className="font-bold text-gray-700">72%</span></p>
+              </div>
+
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <Plus className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Business Flow Track - A</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5 mb-3">Trigger when market is going high</p>
+                 <div className="flex gap-1.5">
+                   <div className="h-1.5 bg-emerald-400 flex-1 rounded-full"></div>
+                   <div className="h-1.5 bg-amber-400 flex-1 rounded-full"></div>
+                   <div className="h-1.5 bg-purple-500 flex-1 rounded-full"></div>
+                 </div>
+              </div>
+           </div>
+
+           {/* Middle Grid (Diagram) */}
+           <div className="col-span-2 relative bg-gray-50 p-8 flex items-center justify-center overflow-hidden border-r border-gray-100">
+               {/* Decorative dotted background */}
+               <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(#9ca3af 1px, transparent 1px)", backgroundSize: "20px 20px" }}></div>
+               
+               <div className="relative z-10 w-full h-full min-h-[300px]">
+
+                  {/* Nodes */}
+                  <div className="absolute left-[5%] top-1/2 -translate-y-1/2 flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <Briefcase className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Customer Satisfaction</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Our customers' happiness is our top priority</div>
+                     </div>
+                  </div>
+
+                  {/* SVG connecting paths */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 10 }}>
+                     <path d="M 230 150 L 320 150 L 320 80 L 360 80" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     <path d="M 320 150 L 320 220 L 400 220" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     <path d="M 320 150 L 360 150" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     
+                     <path d="M 400 220 L 480 220 L 480 250 L 500 250" fill="none" stroke="#d1d5db" strokeWidth="1.5" />
+                     {/* Connectors to simulate branching */}
+                     <circle cx="320" cy="150" r="3" fill="#9ca3af" />
+                     <circle cx="480" cy="220" r="3" fill="#9ca3af" />
+                     <path d="M 320 150 L 320 280 L 360 280" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeDasharray="4 2" />
+                  </svg>
+
+                  {/* Colored Operational Blocks */}
+                  <div className="absolute left-[38%] top-[45%] -translate-y-1/2 w-20 h-7 bg-blue-600 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[52%] top-[50%] -translate-y-1/2 w-[70px] h-7 bg-amber-400 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[50%] top-[65%] -translate-y-1/2 w-24 h-[30px] bg-emerald-400 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[78%] top-[70%] w-3.5 h-[34px] bg-blue-600 rounded-md z-20 shadow-sm"></div>
+
+                  {/* Node 2 */}
+                  <div className="absolute left-[40%] top-[15%] flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <UserIcon className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Automation Coverage</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Your last week is better 72%</div>
+                     </div>
+                  </div>
+
+                  {/* Node 3 */}
+                  <div className="absolute right-[5%] top-[52%] flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <ShoppingBag className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Performance Optimization</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Improving efficiency by 50%</div>
+                     </div>
+                  </div>
+                  
+                  {/* Node 4 */}
+                  <div className="absolute left-[45%] bottom-[5%] flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">
+                     <div className="p-2 bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
+                        <UserIcon className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <div className="text-[11px] font-bold text-gray-800">Customer Satisfaction</div>
+                       <div className="text-[9px] text-gray-400 mt-0.5">Our customers' happiness is our top priority</div>
+                     </div>
+                  </div>
+
+               </div>
+           </div>
+
+           {/* Right Column */}
+           <div className="p-5 flex flex-col gap-4 bg-white/50">
+              <div className="flex justify-between items-center mb-1">
+                 <h4 className="font-bold text-gray-800 text-xs">Exception Manager Automation</h4>
+                 <Plus className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-900" />
+              </div>
+              <div className="relative mb-2">
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                 <input placeholder="Search finance data..." className="w-full text-xs pl-9 pr-10 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-300" />
+                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[9px] text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                   ⌘ P
+                 </div>
+              </div>
+              
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <X className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Automation Coverage</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Your last week is better <span className="font-bold text-gray-700">72%</span></p>
+              </div>
+
+              <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all">
+                 <Plus className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Business Flow Track - A</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Trigger when market is going high</p>
+              </div>
+              
+               <div className="border border-gray-100 rounded-xl p-4 shadow-sm relative group hover:border-gray-300 cursor-pointer bg-white transition-all opacity-70">
+                 <Plus className="w-3.5 h-3.5 text-gray-300 absolute right-3 top-3 opacity-0 group-hover:opacity-100 hover:text-gray-500" />
+                 <h5 className="text-xs font-bold text-gray-800">Business Flow Track - B</h5>
+                 <p className="text-[10px] text-gray-500 mt-1.5">Trigger when market is going low</p>
+              </div>
+           </div>
+        </div>
       </div>
 
     </div>
