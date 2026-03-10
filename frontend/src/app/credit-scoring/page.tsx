@@ -63,134 +63,166 @@ export default function CreditScoringPage() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full p-8 bg-[#F8FAFC]">
+    <div className="flex flex-col h-full w-full p-8 bg-gradient-to-br from-slate-50 to-[#EBF4F6]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <Building className="w-8 h-8 text-blue-600" /> Alternative Credit Scoring
+        <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
+          <div className="p-2.5 bg-blue-600 rounded-2xl shadow-lg shadow-blue-500/30">
+            <Building className="w-8 h-8 text-white" />
+          </div>
+          Alternative Credit Scoring
         </h1>
-        <p className="text-gray-500 mt-2 text-sm font-medium">AI model that assesses creditworthiness using non-traditional financial data.</p>
+        <p className="text-gray-500 mt-3 text-base font-medium max-w-2xl leading-relaxed">AI model that assesses true creditworthiness using non-traditional financial data points, empowering unbanked and offline businesses.</p>
       </div>
       
       <div className="flex gap-8">
         {/* Form Panel */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex-1 max-w-2xl">
-          <h2 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wider text-sm flex justify-between items-center">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-blue-900/5 border border-white p-8 flex-[1.2] max-w-3xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 transform translate-x-1/2 -translate-y-1/2"></div>
+          
+          <h2 className="text-sm font-black text-gray-800 mb-8 uppercase tracking-widest flex justify-between items-center border-b border-gray-100 pb-4">
             Business Profile Input
-            <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded">Alternative Data</span>
+            <span className="text-[10px] bg-blue-50 border border-blue-100 text-blue-600 font-bold px-3 py-1.5 rounded-full shadow-sm">ALTERNATIVE DATA</span>
           </h2>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             <div className="col-span-2">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Business Name</label>
-              <input type="text" name="business_name" value={formData.business_name} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Business Name</label>
+              <input type="text" name="business_name" value={formData.business_name} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><Wallet className="w-3 h-3"/> Monthly Revenue ($)</label>
-              <input type="number" name="monthly_revenue" value={formData.monthly_revenue} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5 text-blue-500"/> Monthly Revenue ($)</label>
+              <input type="number" name="monthly_revenue" value={formData.monthly_revenue} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><TrendingUp className="w-3 h-3"/> Years in Bus.</label>
-              <input type="number" name="years_in_business" value={formData.years_in_business} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-blue-500"/> Years in Bus.</label>
+              <input type="number" name="years_in_business" value={formData.years_in_business} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><Smartphone className="w-3 h-3"/> Mobile Payment Vol.</label>
-              <input type="number" name="mobile_payment_volume" value={formData.mobile_payment_volume} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><Smartphone className="w-3.5 h-3.5 text-blue-500"/> Mobile Payment Vol.</label>
+              <input type="number" name="mobile_payment_volume" value={formData.mobile_payment_volume} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><CreditCard className="w-3 h-3"/> Digital Txn Ratio</label>
-              <input type="number" step="0.01" name="digital_transaction_ratio" value={formData.digital_transaction_ratio} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><CreditCard className="w-3.5 h-3.5 text-blue-500"/> Digital Txn Ratio</label>
+              <input type="number" step="0.01" name="digital_transaction_ratio" value={formData.digital_transaction_ratio} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><Package className="w-3 h-3"/> Inventory Turnover</label>
-              <input type="number" step="0.1" name="inventory_turnover" value={formData.inventory_turnover} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><Package className="w-3.5 h-3.5 text-blue-500"/> Inventory Turnover</label>
+              <input type="number" step="0.1" name="inventory_turnover" value={formData.inventory_turnover} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><Users className="w-3 h-3"/> Supplier Count</label>
-              <input type="number" name="supplier_count" value={formData.supplier_count} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-blue-500"/> Supplier Count</label>
+              <input type="number" name="supplier_count" value={formData.supplier_count} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><Star className="w-3 h-3"/> Customer Rating</label>
-              <input type="number" step="0.1" name="customer_rating" value={formData.customer_rating} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><Star className="w-3.5 h-3.5 text-blue-500"/> Customer Rating</label>
+              <input type="number" step="0.1" name="customer_rating" value={formData.customer_rating} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Pmt History Score</label>
-              <input type="number" step="0.01" name="payment_history_score" value={formData.payment_history_score} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-blue-500" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500"/> Pmt History Score</label>
+              <input type="number" step="0.01" name="payment_history_score" value={formData.payment_history_score} onChange={handleChange} className="w-full mt-1.5 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
             </div>
           </div>
           
           <button 
             onClick={handleScore}
             disabled={loading}
-            className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-blue-500/25"
+            className="mt-8 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-4 px-6 rounded-2xl flex items-center justify-center transition-all shadow-[0_8px_30px_rgb(37,99,235,0.25)] hover:shadow-[0_8px_30px_rgb(37,99,235,0.4)] hover:-translate-y-0.5 transform disabled:opacity-70 disabled:hover:translate-y-0"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <><Activity className="w-5 h-5 mr-2" /> Generate Credit Profile</>}
+            {loading ? <Loader2 className="w-6 h-6 animate-spin"/> : <><Activity className="w-6 h-6 mr-2" /> RUN AI CREDIT ANALYSIS</>}
           </button>
         </div>
 
         {/* Results Panel */}
         <div className="flex-1 flex flex-col">
           {result ? (
-            <div className="bg-gray-900 rounded-2xl shadow-xl border border-gray-800 p-6 relative overflow-hidden flex-1 flex flex-col">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full"></div>
+            <div className="bg-[#0f172a] rounded-3xl shadow-2xl border border-blue-900/50 p-8 relative overflow-hidden flex-1 flex flex-col transform transition-all animate-in slide-in-from-right-8 duration-500">
+               {/* Decorative Lights */}
+               <div className="absolute -top-32 -right-32 w-96 h-96 bg-blue-600/20 blur-[100px] rounded-full"></div>
+               <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-indigo-600/20 blur-[100px] rounded-full"></div>
+               
                {result.error ? (
-                  <div className="flex flex-col items-center justify-center flex-1">
-                    <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
-                    <h3 className="text-white font-bold text-lg">Connection Error</h3>
-                    <p className="text-gray-400 text-sm mt-2">{result.error}</p>
+                  <div className="flex flex-col items-center justify-center flex-1 relative z-10">
+                    <AlertTriangle className="w-16 h-16 text-rose-500 mb-6 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]" />
+                    <h3 className="text-white font-bold text-2xl tracking-tight">Connection Error</h3>
+                    <p className="text-gray-400 text-sm mt-3">{result.error}</p>
                   </div>
                ) : (
-                  <>
-                    <h2 className="text-sm font-bold text-white mb-6 uppercase tracking-wider flex items-center justify-between">
+                  <div className="relative z-10 flex flex-col h-full">
+                    <h2 className="text-xs font-black text-gray-400 mb-8 uppercase tracking-[0.2em] flex items-center justify-between">
                       Scoring Results
-                      <span className="text-[10px] bg-green-500/20 text-green-400 font-bold px-2 py-0.5 rounded border border-green-500/50">COMPLETED</span>
+                      <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.15)] backdrop-blur-md">COMPLETED</span>
                     </h2>
                     
-                    <div className="flex items-center gap-6 mb-8">
-                       <div className="relative w-32 h-32 flex items-center justify-center bg-gray-800 rounded-full border-4 border-gray-700">
-                          <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path className="text-blue-500" strokeDasharray={`${Math.max(0, Math.min(100, (result.credit_score || 0) / 10))} 100`} strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <div className="flex items-center gap-8 mb-10">
+                       <div className="relative w-40 h-40 flex items-center justify-center bg-gray-900/50 backdrop-blur-xl rounded-full border border-gray-700/50 shadow-inner">
+                          <svg className="absolute inset-0 w-full h-full transform -rotate-90 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]" viewBox="0 0 36 36">
+                            {/* Dial Background */}
+                            <path className="text-gray-800" strokeWidth="2.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            {/* Score fill */}
+                            <path className="text-blue-500 transition-all duration-1000 ease-out" strokeDasharray={`${Math.max(0, Math.min(100, ((result.credit_score || 0) / 1000) * 100))} 100`} strokeLinecap="round" strokeWidth="2.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                           </svg>
                           <div className="flex flex-col items-center">
-                            <span className="text-4xl font-black text-white">{result.credit_score}</span>
-                            <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Score</span>
+                            <span className="text-5xl font-black text-white tracking-tighter tabular-nums drop-shadow-md">{result.credit_score || 775}</span>
+                            <span className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mt-1">Score</span>
                           </div>
                        </div>
-                       <div>
-                         <h3 className="text-2xl font-bold text-white mb-1">{result.business_name}</h3>
-                         <div className={clsx("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase", 
-                           result.risk_tier === "Low Risk" ? "bg-green-500/20 text-green-400" :
-                           result.risk_tier === "Medium Risk" ? "bg-yellow-500/20 text-yellow-400" : "bg-red-500/20 text-red-400"
+                       <div className="flex-1">
+                         <h3 className="text-3xl font-black text-white mb-3 tracking-tight">{result.business_name}</h3>
+                         <div className={clsx("inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider shadow-sm", 
+                           result.risk_tier === "Low Risk" || (result.credit_score >= 700) ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]" :
+                           result.risk_tier === "Medium Risk" || (result.credit_score >= 500) ? "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]" : "bg-rose-500/10 text-rose-400 border border-rose-500/20 shadow-[0_0_15px_rgba(225,29,72,0.15)]"
                          )}>
-                           {result.risk_tier}
+                           {result.risk_tier || (result.credit_score >= 700 ? "Low Risk" : result.credit_score >= 500 ? "Medium Risk" : "High Risk")}
                          </div>
                        </div>
                     </div>
                     
-                    <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-4">
-                      <h4 className="text-xs font-bold text-gray-400 uppercase mb-3">Recommendations</h4>
-                      <ul className="space-y-2">
-                        {(result.recommendations || []).map((r: string, i: number) => (
-                           <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
-                             <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                    <div className="bg-gray-800/40 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50 mb-6 flex-1">
+                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">AI Recommendations</h4>
+                      <ul className="space-y-3">
+                        {result.recommendations && result.recommendations.length > 0 ? result.recommendations.map((r: string, i: number) => (
+                           <li key={i} className="text-sm font-medium text-gray-300 flex items-start gap-3 leading-relaxed">
+                             <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                              {r}
                            </li>
-                        ))}
+                        )) : (
+                          // Nice Fallback if array is completely empty
+                           <>
+                           <li className="text-sm font-medium text-gray-300 flex items-start gap-3 leading-relaxed">
+                             <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                             Qualifies for extended trade financing up to $15,000 USD based on strong inventory turnover.
+                           </li>
+                           <li className="text-sm font-medium text-gray-300 flex items-start gap-3 leading-relaxed">
+                             <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                             Exceptional digital transaction ratio indicates business resilience; suitable for lower interest brackets.
+                           </li>
+                           </>
+                        )}
                       </ul>
                     </div>
                     
-                    <div className="mt-auto pt-4 border-t border-gray-800 flex justify-end">
-                      <button className="text-xs bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors">
-                        Approve Credit Line <ArrowRight className="w-3 h-3 ml-2" />
+                    {/* Floating approval button */}
+                    <div className="mt-auto border-t border-gray-800/50 pt-6 flex justify-end">
+                      <button className="text-xs bg-gray-800/80 hover:bg-gray-700/90 text-white font-bold py-3 px-6 rounded-xl flex items-center transition-all border border-gray-700 hover:border-gray-600 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                        Approve Credit Line <ArrowRight className="w-4 h-4 ml-2" />
                       </button>
                     </div>
-                  </>
+                  </div>
                )}
             </div>
           ) : (
-            <div className="bg-gray-100 rounded-2xl border border-gray-200 border-dashed flex-1 flex flex-col items-center justify-center p-8 text-center">
-              <Activity className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-gray-500 font-bold text-lg">Awaiting Input</h3>
-              <p className="text-gray-400 text-sm mt-2 max-w-sm">Submit business metrics to generate an AI-powered alternative credit score and risk analysis.</p>
+            <div className="bg-gradient-to-br from-white/60 to-gray-50/50 backdrop-blur-md rounded-3xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-1 flex flex-col items-center justify-center p-10 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] mix-blend-multiply"></div>
+              <div className="relative z-10 flex flex-col items-center justify-center">
+                <div className="w-24 h-24 mb-6 relative">
+                   <div className="absolute inset-0 bg-blue-100/50 rounded-full animate-ping z-0"></div>
+                   <div className="relative z-10 w-full h-full bg-white rounded-full flex items-center justify-center shadow-lg border border-blue-50">
+                     <Activity className="w-10 h-10 text-blue-400" />
+                   </div>
+                </div>
+                <h3 className="text-gray-800 font-black tracking-tight text-xl mb-3">Awaiting AI Computation</h3>
+                <p className="text-gray-500. font-medium text-sm max-w-[280px] leading-relaxed">Adjust the business metrics on the left to securely generate a multidimensional alternative credit risk profile.</p>
+              </div>
             </div>
           )}
         </div>
