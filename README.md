@@ -205,7 +205,7 @@ Create a `.env` file in `/backend` with:
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `GEMINI_API_KEY` | Google Gemini API key | ✅ |
-| `GEMINI_MODEL` | Gemini model name (e.g. `gemini-3-flash-preview`) | ✅ |
+| `GEMINI_MODEL` | Gemini model name (e.g. `gemini-2.5-flash`) | ✅ |
 | `TAVILY_API_KEY` | Tavily web search API key | ✅ |
 | `ALPHAVANTAGE_API_KEY` | Alpha Vantage stock/forex API key | ⬚ Optional |
 | `NEWS_API_KEY` | NewsAPI.org key for ASEAN headlines | ⬚ Optional |
@@ -240,10 +240,10 @@ Create a `.env` file in `/backend` with:
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend** | Next.js 15, React 19, TypeScript, Tailwind CSS |
+| **Frontend** | Next.js 16.1, React 19, TypeScript, Tailwind CSS v4 |
 | **UI Components** | Lucide React, Recharts, react-simple-maps, react-markdown, remark-gfm |
 | **Backend** | FastAPI, Python 3.11+, Pydantic v2 |
-| **AI/LLM** | Google Gemini (gemini-3-flash-preview), LangChain, LangGraph |
+| **AI/LLM** | Google Gemini (gemini-2.5-flash), LangChain, LangGraph |
 | **Agent Tools** | Tavily (search), Alpha Vantage (stocks), NewsAPI (news), QuickChart (graphs), Pollinations (images), ExchangeRate API (forex) |
 | **Database** | Supabase (PostgreSQL + pgvector) |
 | **Memory** | Mem0 (conversational memory) |
