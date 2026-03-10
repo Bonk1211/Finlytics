@@ -4,71 +4,32 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Settings,
-  ListTodo,
-  AlertOctagon,
-  Activity,
+  Building,
   Package,
-  Receipt,
-  FileText,
   PieChart,
-  BookOpen,
-  Scale,
-  Database,
-  Link as LinkIcon,
-  ShieldCheck,
-  Bot,
-  ArrowDownToLine,
+  Globe,
+  Search,
   Lock,
-  HeartHandshake,
-  User,
-  Boxes,
-  Globe
+  User
 } from "lucide-react";
 import clsx from "clsx";
 
 const NAV_SECTIONS = [
   {
-    title: "FINANCIAL MANAGEMENT",
+    title: "CORE INTELLIGENCE & TRADE",
     items: [
       { href: "/", label: "Dashboard Overview", icon: LayoutDashboard },
-      { href: "/process-manager", label: "Process Manager", icon: ListTodo },
-      { href: "/exception-manager", label: "Exception Manager", icon: AlertOctagon },
-    ]
-  },
-  {
-    title: "OPERATION & REPORTING",
-    items: [
-      { href: "/pnl-monitoring", label: "Profit & Loss Monitoring", icon: Activity },
-      { href: "/inventory", label: "Stock Inventory", icon: Package },
-      { href: "/price-verification", label: "Indt. Price Verification", icon: Receipt },
-      { href: "/report-manager", label: "Report Manager", icon: FileText },
-      { href: "/analytics", label: "Analytics", icon: PieChart },
-    ]
-  },
-  {
-    title: "COMPLIANCE & RISK MANAGEMENT",
-    items: [
-      { href: "/accounting", label: "Accounting", icon: BookOpen },
-      { href: "/regulatory", label: "Regulatory", icon: Scale },
-    ]
-  },
-  {
-    title: "DATA & AUTOMATION",
-    items: [
-      { href: "/market-data", label: "Market Data", icon: Database },
-      { href: "/reference-data", label: "Reference Data", icon: LinkIcon },
-      { href: "/policies", label: "Policies & Rules", icon: ShieldCheck },
-      { href: "/finance-assist", label: "AI-Finance Assist", icon: Bot },
-      { href: "/data-import", label: "Data Import", icon: ArrowDownToLine },
-      { href: "/worldmonitor", label: "World Monitor", icon: Globe },
+      { href: "/credit-scoring", label: "Alternative Credit Scoring", icon: Building },
+      { href: "/supply-chain", label: "Automated Supply Chain", icon: Package },
+      { href: "/worldmonitor", label: "Predictive Market Analytics", icon: PieChart },
+      { href: "/trade-navigator", label: "Cross-Border Trade", icon: Globe },
+      { href: "/visibility-engine", label: "Business Visibility", icon: Search },
     ]
   },
   {
     title: "ADMIN SETTINGS",
     items: [
       { href: "/security", label: "Security", icon: Lock },
-      { href: "/support", label: "Help & Support", icon: HeartHandshake },
       { href: "/account", label: "Account Settings", icon: User },
     ]
   }
