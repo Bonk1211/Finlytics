@@ -13,6 +13,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import clsx from "clsx";
+import ReactMarkdown from "react-markdown";
 
 export default function TradeNavigatorPage() {
   const [messages, setMessages] = useState([
@@ -91,10 +92,23 @@ export default function TradeNavigatorPage() {
                   ? "bg-indigo-600 text-white rounded-tr-none shadow-md" 
                   : "bg-gray-50 text-gray-800 border border-gray-100 rounded-tl-none"
               )}>
-                {/* Format markdown line breaks implicitly */}
-                {msg.content.split('\n').map((line: string, i: number) => (
-                  <span key={i} className="block mb-1">{line}</span>
-                ))}
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown 
+                    components={{
+                      p: ({node, ...props}: any) => <p className="mb-2 last:mb-0" {...props} />,
+                      strong: ({node, ...props}: any) => <strong className="font-bold text-teal-900" {...props} />,
+                      ul: ({node, ...props}: any) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                      ol: ({node, ...props}: any) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                      li: ({node, ...props}: any) => <li className="mb-1" {...props} />
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  msg.content.split('\n').map((line: string, i: number) => (
+                    <span key={i} className="block mb-1">{line}</span>
+                  ))
+                )}
               </div>
             </div>
           ))}

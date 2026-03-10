@@ -110,24 +110,27 @@ async def _ensure_regulations_seeded() -> None:
         logger.warning("Supabase not configured — skipping trade regulations seed")
         return
 
-    existing = db.table("trade_regulations").select("id", count="exact").limit(1).execute()
-    if existing.count and existing.count > 0:
-        logger.info("Trade regulations already seeded (%d rows)", existing.count)
-        return
+    try:
+        existing = db.table("trade_regulations").select("id", count="exact").limit(1).execute()
+        if existing.count and existing.count > 0:
+            logger.info("Trade regulations already seeded (%d rows)", existing.count)
+            return
 
-    logger.info("Seeding %d trade regulations with embeddings...", len(TRADE_REGULATIONS))
-    for doc in TRADE_REGULATIONS:
-        try:
-            embedding = await generate_embedding(doc["content"])
-            db.table("trade_regulations").insert({
-                "title": doc["title"],
-                "content": doc["content"],
-                "regulation_type": doc["regulation_type"],
-                "embedding": embedding,
-            }).execute()
-        except Exception as e:
-            logger.error("Failed to seed regulation '%s': %s", doc["title"], e)
-    logger.info("Trade regulations seeding complete")
+        logger.info("Seeding %d trade regulations with embeddings...", len(TRADE_REGULATIONS))
+        for doc in TRADE_REGULATIONS:
+            try:
+                embedding = await generate_embedding(doc["content"])
+                db.table("trade_regulations").insert({
+                    "title": doc["title"],
+                    "content": doc["content"],
+                    "regulation_type": doc["regulation_type"],
+                    "embedding": embedding,
+                }).execute()
+            except Exception as e:
+                logger.error("Failed to seed regulation '%s': %s", doc["title"], e)
+        logger.info("Trade regulations seeding complete")
+    except Exception as e:
+        logger.warning("Failed to connect or interact with database, proceeding without seeding: %s", e)
 
 
 async def _search_regulations(query: str, n_results: int = 3) -> list[dict]:
@@ -213,8 +216,8 @@ async def query_trade_regulations(request: QueryRequest) -> QueryResponse:
 
     prompt += "\n\nRespond in the JSON format specified in your instructions. ONLY use the provided Context Documents and act agentically."
 
-    # LangGraph agent adds multi-step tool execution and reflection
-    raw_response = await run_langgraph_agent(prompt, system_instruction=SYSTEM_INSTRUCTION)
+    # Use direct LLM generation instead of Multi-Agent chain to ensure speed and strict JSON format
+    raw_response = await generate(prompt, system_instruction=SYSTEM_INSTRUCTION)
 
     # Parse the JSON response from Gemini
     try:
