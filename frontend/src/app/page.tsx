@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import {
   DollarSign,
   TrendingUp,
@@ -14,6 +16,10 @@ import {
   Printer,
   Plus,
   X,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  ArrowBigDown,
   Briefcase,
   User as UserIcon,
   ShoppingBag
@@ -50,11 +56,159 @@ const pnlData = [
   { time: "5:00 PM", income: 1000, expenses: 500, profit: 500 },
 ];
 
+const TUTORIAL_STEPS = [
+  {
+    id: "nav-dashboard",
+    selector: "aside a[href='/']",
+    title: "Navbar: Dashboard Overview",
+    description: "Your control center. It summarizes business performance, cash flow, and operational status in one place.",
+  },
+  {
+    id: "nav-credit",
+    selector: "aside a[href='/credit-scoring']",
+    title: "Navbar: Alternative Credit Scoring",
+    description: "Enter MSME operational data and get AI-based credit score, risk category, and financing guidance.",
+  },
+  {
+    id: "nav-supply",
+    selector: "aside a[href='/supply-chain']",
+    title: "Navbar: Automated Supply Chain",
+    description: "Get supplier recommendations using cost, reliability, and lead-time trade-offs.",
+  },
+  {
+    id: "nav-world",
+    selector: "aside a[href='/worldmonitor']",
+    title: "Navbar: Predictive Market Analytics",
+    description: "Monitor global risk signals and disruptions that can affect demand, shipping, or sourcing.",
+  },
+  {
+    id: "nav-trade",
+    selector: "aside a[href='/trade-navigator']",
+    title: "Navbar: Cross-Border Trade",
+    description: "Use AI chat to understand trade rules, tariffs, HS guidance, and compliance requirements.",
+  },
+  {
+    id: "nav-visibility",
+    selector: "aside a[href='/visibility-engine']",
+    title: "Navbar: Business Visibility",
+    description: "Onboard offline businesses into a trusted digital profile for lenders and supply-chain partners.",
+  },
+  {
+    id: "header",
+    title: "Header Controls",
+    description: "Use search, report currency/date, and export controls to quickly filter and share business insights.",
+  },
+  {
+    id: "kpi",
+    title: "KPI Summary Cards",
+    description: "These cards provide a fast snapshot of Total Revenue, Expenses, and Net Profit trends.",
+  },
+  {
+    id: "cashflow",
+    title: "Cash Flow Insights",
+    description: "Track money in vs money out daily to detect liquidity pressure early.",
+  },
+  {
+    id: "pnl",
+    title: "Profit & Loss Monitoring",
+    description: "Monitor income, expense, and profit movement over time to see operational efficiency.",
+  },
+  {
+    id: "process",
+    title: "Smart Process Manager",
+    description: "This section maps operational workflows and exceptions so teams can automate decisions.",
+  },
+];
+
 export default function DashboardPage() {
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourStepIndex, setTourStepIndex] = useState(0);
+  const [anchor, setAnchor] = useState({ top: 120, left: 120, width: 300, height: 120 });
+  const [viewportWidth, setViewportWidth] = useState(1280);
+
+  const activeStep = TUTORIAL_STEPS[tourStepIndex];
+  const isLastStep = tourStepIndex === TUTORIAL_STEPS.length - 1;
+
+  const updateAnchor = (step: { id: string; selector?: string }) => {
+    const el = step.selector
+      ? document.querySelector(step.selector)
+      : document.querySelector(`[data-tour="${step.id}"]`);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setAnchor({
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+    });
+  };
+
+  useEffect(() => {
+    if (!tourOpen) return;
+
+    const handleUpdate = () => {
+      setViewportWidth(window.innerWidth);
+      updateAnchor(activeStep);
+    };
+
+    const target = activeStep.selector
+      ? document.querySelector(activeStep.selector)
+      : document.querySelector(`[data-tour="${activeStep.id}"]`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    }
+
+    handleUpdate();
+    window.addEventListener("resize", handleUpdate);
+    window.addEventListener("scroll", handleUpdate, true);
+
+    return () => {
+      window.removeEventListener("resize", handleUpdate);
+      window.removeEventListener("scroll", handleUpdate, true);
+    };
+  }, [tourOpen, activeStep]);
+
+  const cardLeft = Math.max(
+    16,
+    Math.min(viewportWidth - 336, anchor.left + anchor.width + 16)
+  );
+  const cardTop = Math.max(16, anchor.top - 12);
+
+  const highlightClass = (id: string) =>
+    tourOpen && activeStep.id === id
+      ? "ring-2 ring-green-400 ring-offset-2 ring-offset-white rounded-2xl transition-all duration-200"
+      : "";
+
+  const startTour = () => {
+    setTourStepIndex(0);
+    setTourOpen(true);
+  };
+
+  const nextStep = () => {
+    if (isLastStep) {
+      setTourOpen(false);
+      return;
+    }
+    setTourStepIndex((prev) => prev + 1);
+  };
+
+  const prevStep = () => {
+    setTourStepIndex((prev) => Math.max(0, prev - 1));
+  };
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 relative">
+      <div className="flex justify-end">
+        <button
+          onClick={startTour}
+          className="inline-flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+        >
+          <Sparkles className="h-4 w-4" />
+          Tutorial
+        </button>
+      </div>
       {/* ── Top Header Bar ── */}
-      <div className="flex items-center justify-between pb-2">
+      <div data-tour="header" className={`flex items-center justify-between pb-2 ${highlightClass("header")}`}>
         <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
           Dashboard Overview
         </h1>
@@ -104,7 +258,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-12 gap-6">
         
         {/* Left Column: 3 Metric Cards (Span 3) */}
-        <div className="col-span-12 xl:col-span-3 flex flex-col gap-4">
+        <div data-tour="kpi" className={`col-span-12 xl:col-span-3 flex flex-col gap-4 ${highlightClass("kpi")}`}>
           {/* Total Revenue */}
           <div className="bg-white rounded-[16px] p-5 border border-gray-100 shadow-sm relative overflow-hidden">
             <div className="flex justify-between items-start mb-2">
@@ -165,7 +319,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Top Right Chart: Cash Flow Insights (Span 9) */}
-        <div className="col-span-12 xl:col-span-9 bg-white rounded-[16px] border border-gray-100 shadow-sm p-6">
+        <div data-tour="cashflow" className={`col-span-12 xl:col-span-9 bg-white rounded-[16px] border border-gray-100 shadow-sm p-6 ${highlightClass("cashflow")}`}>
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-gray-900">Cash Flow Insights</h3>
             <div className="flex space-x-2 text-xs font-semibold">
@@ -199,7 +353,7 @@ export default function DashboardPage() {
       {/* ── Second Row ── */}
       <div className="grid grid-cols-12 gap-6">
         {/* P&L Monitoring (Span 12) */}
-        <div className="col-span-12 xl:col-span-12 bg-white rounded-[16px] border border-gray-100 shadow-sm p-6">
+        <div data-tour="pnl" className={`col-span-12 xl:col-span-12 bg-white rounded-[16px] border border-gray-100 shadow-sm p-6 ${highlightClass("pnl")}`}>
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-gray-900">Profit & Loss Monitoring</h3>
             <div className="flex space-x-2 text-xs font-semibold">
@@ -232,7 +386,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Third Row: Smart Process Manager ── */}
-      <div className="bg-white rounded-[16px] border border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-12 mt-2">
+      <div data-tour="process" className={`bg-white rounded-[16px] border border-gray-100 shadow-sm overflow-hidden flex flex-col md:col-span-12 mt-2 ${highlightClass("process")}`}>
         {/* Header */}
         <div className="flex justify-between items-center p-5 border-b border-gray-100">
           <h3 className="font-bold text-gray-900 text-sm">Smart Process Manager</h3>
@@ -382,6 +536,76 @@ export default function DashboardPage() {
            </div>
         </div>
       </div>
+
+      {tourOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/20 z-40"
+            onClick={() => setTourOpen(false)}
+          />
+
+          <div
+            className="fixed z-50 border-2 border-green-400 rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.25)] pointer-events-none"
+            style={{
+              top: anchor.top - 6,
+              left: anchor.left - 6,
+              width: anchor.width + 12,
+              height: anchor.height + 12,
+            }}
+          />
+
+          <div
+            className="fixed z-50 text-green-600 animate-bounce"
+            style={{
+              top: Math.max(16, anchor.top - 34),
+              left: anchor.left + (anchor.width / 2) - 10,
+            }}
+          >
+            <ArrowBigDown className="h-5 w-5" />
+          </div>
+
+          <div
+            className="fixed z-50 w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl p-5"
+            style={{ top: cardTop, left: cardLeft }}
+          >
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-green-600 mb-2">
+              Dashboard Tutorial
+            </p>
+            <h3 className="text-lg font-black text-gray-900 leading-tight">{activeStep.title}</h3>
+            <p className="text-sm text-gray-600 mt-2 leading-relaxed">{activeStep.description}</p>
+
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-500">
+                Step {tourStepIndex + 1} of {TUTORIAL_STEPS.length}
+              </span>
+              <button
+                onClick={() => setTourOpen(false)}
+                className="text-xs font-bold text-gray-500 hover:text-gray-700"
+              >
+                Skip
+              </button>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-2">
+              <button
+                onClick={prevStep}
+                disabled={tourStepIndex === 0}
+                className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-gray-200 text-sm font-bold text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back
+              </button>
+              <button
+                onClick={nextStep}
+                className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-sm font-bold text-white"
+              >
+                {isLastStep ? "Finish" : "Next"}
+                {!isLastStep && <ChevronRight className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
     </div>
   );
