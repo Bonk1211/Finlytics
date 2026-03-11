@@ -1,9 +1,23 @@
 # Python
 venv/
+env/
+ENV/
 __pycache__/
 *.py[cod]
+*.so
+*.egg
+*.egg-info
+dist/
+build/
+
+# Environment variables (IMPORTANT - NEVER COMMIT)
 *.env
 .env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
 
 # Next.js
 frontend/.next/
@@ -11,6 +25,35 @@ frontend/node_modules/
 frontend/.env.local
 frontend/.env*.local
 
-# General
+# Dependencies
+node_modules/
+/backend/venv/
+/backend/env/
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
+
+# Logs
 *.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
