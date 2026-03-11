@@ -96,7 +96,7 @@ export default function AIPage() {
   };
 
   return (
-    <div className="flex gap-5 h-[calc(100vh-48px)]">
+    <div className="flex gap-5 h-[calc(100vh-72px)]">
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         <div className="mb-4">

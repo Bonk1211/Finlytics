@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/sidebar";
-import RightChatSidebar from "@/components/right-chat-sidebar";
+import TopNav from "@/components/topnav";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -10,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "MSME Growth Platform | AI for Inclusive ASEAN Trade",
+  title: "Finlytics | AI for ASEAN MSMEs",
   description:
     "Democratizing enterprise-grade AI tools for ASEAN MSMEs — credit scoring, trade navigation, and market analytics.",
 };
@@ -23,17 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
-        <Sidebar />
-        <main
-          style={{
-            marginLeft: "var(--sidebar-width)",
-            minHeight: "100vh",
-            padding: "24px 32px",
-          }}
-        >
+        <TopNav />
+        <main className="main-content">
           {children}
         </main>
-        <RightChatSidebar />
       </body>
     </html>
   );
