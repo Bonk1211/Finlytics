@@ -1,6 +1,14 @@
 from pydantic import BaseModel, Field
 
 
+class ScoreBreakdownItem(BaseModel):
+    """One weighted component used in transparent credit score calculation."""
+    metric: str
+    normalized_value: float = Field(ge=0, le=1)
+    weight: float = Field(ge=0)
+    contribution_points: float = Field(ge=0)
+
+
 class CreditScoreRequest(BaseModel):
     """Request to evaluate MSME creditworthiness using alternative data."""
     business_name: str
@@ -50,3 +58,9 @@ class CreditScoreResponse(BaseModel):
     max_loan_amount: float = Field(ge=0, description="Recommended max loan in USD")
     suggested_interest_rate: str = ""
     factors: list[str] = []
+    # Explainability fields for judges/users.
+    score_formula: str = ""
+    baseline_formula_score: int = Field(ge=300, le=850, default=500)
+    ai_adjustment: int = 0
+    score_breakdown: list[ScoreBreakdownItem] = []
+    score_calculation_steps: list[str] = []

@@ -200,6 +200,57 @@ export default function CreditScoringPage() {
                         )}
                       </ul>
                     </div>
+
+                    <div className="bg-gray-800/40 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50 mb-6">
+                      <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Score Formula & Calculation</h4>
+                      <p className="text-xs text-gray-300 font-mono leading-relaxed break-words">
+                        {result.score_formula || "BaselineScore = 300 + 550 * (Sum(weight_i * normalized_i) / 100); FinalScore = BaselineScore + AIAdjustment"}
+                      </p>
+
+                      <div className="grid grid-cols-3 gap-3 mt-4">
+                        <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl p-3">
+                          <p className="text-[10px] text-gray-400 uppercase tracking-widest">Baseline</p>
+                          <p className="text-lg font-black text-white tabular-nums">{result.baseline_formula_score ?? "-"}</p>
+                        </div>
+                        <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl p-3">
+                          <p className="text-[10px] text-gray-400 uppercase tracking-widest">AI Adjustment</p>
+                          <p className="text-lg font-black text-blue-400 tabular-nums">{typeof result.ai_adjustment === "number" ? (result.ai_adjustment >= 0 ? `+${result.ai_adjustment}` : result.ai_adjustment) : "-"}</p>
+                        </div>
+                        <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl p-3">
+                          <p className="text-[10px] text-gray-400 uppercase tracking-widest">Final Score</p>
+                          <p className="text-lg font-black text-emerald-400 tabular-nums">{result.credit_score ?? "-"}</p>
+                        </div>
+                      </div>
+
+                      {result.score_breakdown && result.score_breakdown.length > 0 && (
+                        <div className="mt-4 border border-gray-700/50 rounded-xl overflow-hidden">
+                          <div className="grid grid-cols-4 bg-gray-900/70 px-3 py-2 text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                            <span>Metric</span>
+                            <span className="text-right">Norm</span>
+                            <span className="text-right">Weight</span>
+                            <span className="text-right">Points</span>
+                          </div>
+                          <div className="divide-y divide-gray-800">
+                            {result.score_breakdown.map((row: any, i: number) => (
+                              <div key={i} className="grid grid-cols-4 px-3 py-2 text-xs text-gray-200">
+                                <span className="pr-2">{row.metric}</span>
+                                <span className="text-right tabular-nums">{typeof row.normalized_value === "number" ? row.normalized_value.toFixed(2) : "-"}</span>
+                                <span className="text-right tabular-nums">{row.weight ?? "-"}</span>
+                                <span className="text-right tabular-nums text-emerald-400">{typeof row.contribution_points === "number" ? row.contribution_points.toFixed(2) : "-"}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {result.score_calculation_steps && result.score_calculation_steps.length > 0 && (
+                        <ul className="mt-4 space-y-1 text-xs text-gray-300">
+                          {result.score_calculation_steps.map((s: string, i: number) => (
+                            <li key={i}>- {s}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                     
                     {/* Floating approval button */}
                     <div className="mt-auto border-t border-gray-800/50 pt-6 flex justify-end">
