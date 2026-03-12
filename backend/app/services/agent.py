@@ -6,6 +6,7 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import ToolNode, create_react_agent
+from langgraph.errors import GraphRecursionError
 from pydantic import BaseModel, Field
 
 from app.config import get_settings
@@ -243,6 +244,8 @@ class Route(BaseModel):
         description="The next agent to route the task to, or FINISH if the task is complete."
     )
 
+MAX_SUPERVISOR_TURNS = 6
+
 # =============================================================================
 # SYSTEM PROMPTS — Professional Prompt Engineering
 # =============================================================================
@@ -381,6 +384,15 @@ You are the **Quantitative Analyst** of the BorneoHQ multi-agent financial intel
 async def supervisor_node(state: AgentState):
     """The Supervisor decides which worker to call next or to finish."""
     llm = get_llm()
+
+    # Hard stop to prevent infinite routing loops when a stop condition is missed.
+    worker_turns = sum(
+        1
+        for m in state.get("messages", [])
+        if isinstance(m, AIMessage) and getattr(m, "name", None) in {"Researcher", "Quant"}
+    )
+    if worker_turns >= MAX_SUPERVISOR_TURNS:
+        return {"next": "FINISH"}
     
     system_instruction = state.get("system_instruction", "")
     prompt = SUPERVISOR_PROMPT.format(
@@ -469,8 +481,15 @@ async def run_langgraph_agent(prompt: str, system_instruction: str = "") -> str:
         "system_instruction": system_instruction,
     }
     
-    # Run the graph until FINISH is reached
-    final_state = await graph.ainvoke(inputs, config={"recursion_limit": 15})
+    # Run the graph until FINISH is reached.
+    # Keep recursion limit above max worker turns to allow full completion when possible.
+    try:
+        final_state = await graph.ainvoke(inputs, config={"recursion_limit": 40})
+    except GraphRecursionError:
+        return (
+            "I could not complete the full multi-agent workflow in time. "
+            "Please try a shorter prompt, or ask for either market research or calculations separately."
+        )
     
     final_messages = final_state.get("messages", [])
     

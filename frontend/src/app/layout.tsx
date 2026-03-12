@@ -3,6 +3,8 @@ import { Inter, Noto_Sans_SC, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/components/topnav";
 import { LanguageProvider } from "@/lib/language-context";
+import { AppModeProvider } from "@/lib/mode-context";
+import ClientLayout from "@/components/client-layout";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -36,10 +38,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${notoSC.variable} ${notoThai.variable} antialiased`}>
         <LanguageProvider>
-          <TopNav />
-          <main className="main-content">
-            {children}
-          </main>
+          <AppModeProvider>
+            <ClientLayout>
+              {children}
+            </ClientLayout>
+          </AppModeProvider>
         </LanguageProvider>
       </body>
     </html>
