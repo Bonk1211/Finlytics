@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { geoCentroid } from "d3-geo";
+import { useLanguage } from "@/lib/language-context";
 
 const geoUrl = "https://unpkg.com/world-atlas@2.0.2/countries-110m.json";
 
@@ -58,13 +59,6 @@ const ASEAN_WEBCAMS = [
   { name: "JAKARTA", url: "https://www.youtube.com/embed/oij5xUeB_S4?autoplay=1&mute=1&controls=0", country: "ID" },
 ];
 
-const QUICK_LINKS = [
-  { href: "/credit-scoring", label: "Credit Scoring", icon: Building, color: "from-emerald-500 to-teal-500", desc: "Get MSME credit score" },
-  { href: "/supply-chain", label: "Supply Chain", icon: Package, color: "from-blue-500 to-cyan-500", desc: "Optimise sourcing" },
-  { href: "/trade-navigator", label: "Trade Navigator", icon: Globe, color: "from-violet-500 to-purple-500", desc: "Cross-border guidance" },
-  { href: "/dashboard", label: "Dashboard", icon: Activity, color: "from-amber-500 to-orange-500", desc: "Business overview" },
-];
-
 const ASEAN_RISK = [
   { country: "Malaysia", flag: "", risk: 18, trend: "stable", color: "#10B981" },
   { country: "Indonesia", flag: "", risk: 24, trend: "rising", color: "#F59E0B" },
@@ -78,6 +72,14 @@ export default function HomePage() {
   const [activeNews, setActiveNews] = useState("CNA");
   const [liveNewsBrief, setLiveNewsBrief] = useState("Fetching latest ASEAN market intelligence...");
   const [globalRisk, setGlobalRisk] = useState(32);
+  const { t } = useLanguage();
+
+  const QUICK_LINKS = [
+    { href: "/credit-scoring", labelKey: "nav.creditScoring", icon: Building, color: "from-emerald-500 to-teal-500", descKey: "home.getScore" },
+    { href: "/supply-chain", labelKey: "nav.supplyChain", icon: Package, color: "from-blue-500 to-cyan-500", descKey: "home.optimiseSourcing" },
+    { href: "/trade-navigator", labelKey: "nav.tradeNavigator", icon: Globe, color: "from-violet-500 to-purple-500", descKey: "home.crossBorderGuidance" },
+    { href: "/dashboard", labelKey: "nav.dashboard", icon: Activity, color: "from-amber-500 to-orange-500", descKey: "home.businessOverview" },
+  ];
 
   useEffect(() => {
     fetch("https://saurav.tech/NewsAPI/top-headlines/category/business/us.json")
@@ -102,7 +104,7 @@ export default function HomePage() {
       {/* Ticker */}
       <div className="bg-emerald-700 text-white text-[11px] font-bold flex items-center overflow-hidden h-7 shrink-0 sticky top-[60px] z-30">
         <div className="shrink-0 bg-emerald-900 px-3 h-full flex items-center gap-1.5 uppercase tracking-wider">
-          <Radio className="w-3 h-3 animate-pulse" /> LIVE
+          <Radio className="w-3 h-3 animate-pulse" /> {t("home.live")}
         </div>
         <div className="flex-1 overflow-hidden">
           <div
@@ -125,11 +127,11 @@ export default function HomePage() {
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
               <div className="flex items-center gap-2 bg-black/70 backdrop-blur px-3 py-2 rounded-xl border border-gray-700/50">
                 <Globe className="w-4 h-4 text-emerald-400" />
-                <span className="text-white font-bold text-sm">ASEAN Market Intelligence</span>
-                <span className="bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded ml-1 animate-pulse">LIVE</span>
+                <span className="text-white font-bold text-sm">{t("home.aseanMarketIntel")}</span>
+                <span className="bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded ml-1 animate-pulse">{t("home.live")}</span>
               </div>
               <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur px-3 py-1.5 rounded-xl border border-gray-700/50 text-[10px] font-bold text-gray-300">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> 10 MSME MARKETS TRACKED
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {t("home.marketsTracked")}
               </div>
             </div>
 
@@ -189,15 +191,15 @@ export default function HomePage() {
               </ZoomableGroup>
             </ComposableMap>
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-3 bg-black/80 backdrop-blur px-4 py-2 rounded-lg border border-gray-700/50 text-[9px] uppercase font-bold text-gray-400 pointer-events-none">
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-600 border border-emerald-400" /> ASEAN Active</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-400" /> MSME Hub</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-gray-700" /> Non-ASEAN</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-600 border border-emerald-400" /> {t("home.aseanActive")}</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-400" /> {t("home.msmeHub")}</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-gray-700" /> {t("home.nonAsean")}</div>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {QUICK_LINKS.map(({ href, label, icon: Icon, color, desc }) => (
+            {QUICK_LINKS.map(({ href, labelKey, icon: Icon, color, descKey }) => (
               <Link key={href} href={href}
                 className="group flex flex-col gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5"
               >
@@ -205,8 +207,8 @@ export default function HomePage() {
                   <Icon className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-white font-bold text-xs">{label}</p>
-                  <p className="text-gray-500 text-[10px] mt-0.5">{desc}</p>
+                  <p className="text-white font-bold text-xs">{t(labelKey)}</p>
+                  <p className="text-gray-500 text-[10px] mt-0.5">{t(descKey)}</p>
                 </div>
                 <ArrowUpRight className="w-3 h-3 text-gray-600 group-hover:text-emerald-400 self-end -mt-1 transition-colors" />
               </Link>
@@ -218,8 +220,8 @@ export default function HomePage() {
             <div className="bg-gray-800/80 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <PlaySquare className="w-4 h-4 text-red-400" />
-                <h3 className="font-bold text-gray-100 text-sm">LIVE NEWS</h3>
-                <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded ml-1 animate-pulse">LIVE</span>
+                <h3 className="font-bold text-gray-100 text-sm">{t("home.liveNews")}</h3>
+                <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded ml-1 animate-pulse">{t("home.live")}</span>
               </div>
               <div className="flex gap-1 text-[10px] font-bold">
                 {Object.keys(NEWS_STREAMS).map((n) => (
@@ -244,9 +246,9 @@ export default function HomePage() {
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-xs uppercase flex items-center gap-1.5">
-                <ShieldAlert className="w-3.5 h-3.5 text-emerald-400" /> ASEAN Risk Snapshot
+                <ShieldAlert className="w-3.5 h-3.5 text-emerald-400" /> {t("home.aseanRisk")}
               </h3>
-              <span className="text-[9px] font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-400/10 px-1.5 py-0.5 rounded uppercase">Live</span>
+              <span className="text-[9px] font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-400/10 px-1.5 py-0.5 rounded uppercase">{t("home.live")}</span>
             </div>
             <div className="space-y-2.5">
               {ASEAN_RISK.map(({ country, flag, risk, trend, color }) => (
@@ -276,8 +278,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div>
-                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">ASEAN Composite Risk</p>
-                <p className="text-sm font-bold text-emerald-400 mt-0.5">LOW  STABLE</p>
+                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{t("home.compositeRisk")}</p>
+                <p className="text-sm font-bold text-emerald-400 mt-0.5">{t("home.lowStable")}</p>
               </div>
             </div>
           </div>
@@ -286,7 +288,7 @@ export default function HomePage() {
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-3">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Radio className="w-3 h-3" /> ASEAN Live Cams
+                <Radio className="w-3 h-3" /> {t("home.liveCams")}
               </h3>
               <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
             </div>
@@ -308,21 +310,21 @@ export default function HomePage() {
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-gray-200 uppercase flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-emerald-400" /> AI Market Brief
+                <Zap className="w-3.5 h-3.5 text-emerald-400" /> {t("home.aiMarketBrief")}
               </h3>
-              <span className="text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded">LIVE</span>
+              <span className="text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded">{t("home.live")}</span>
             </div>
             <div className="bg-emerald-950/50 border border-emerald-900/50 rounded-xl p-3">
               <p className="text-[11px] text-emerald-200 font-medium leading-relaxed">{liveNewsBrief}</p>
             </div>
             <div className="grid grid-cols-3 gap-1.5 mt-1">
               {[
-                { label: "Trade Activity", val: "+12%", cls: "text-emerald-400" },
-                { label: "FX Volatility", val: "LOW", cls: "text-emerald-300" },
-                { label: "Supply Stress", val: "MED", cls: "text-amber-400" },
-              ].map(({ label, val, cls }) => (
-                <div key={label} className="bg-gray-800 rounded-lg p-2 text-center border border-gray-700">
-                  <p className="text-[9px] text-gray-500 uppercase font-bold">{label}</p>
+                { labelKey: "home.tradeActivity", val: "+12%", cls: "text-emerald-400" },
+                { labelKey: "home.fxVolatility", val: "LOW", cls: "text-emerald-300" },
+                { labelKey: "home.supplyStress", val: "MED", cls: "text-amber-400" },
+              ].map(({ labelKey, val, cls }) => (
+                <div key={labelKey} className="bg-gray-800 rounded-lg p-2 text-center border border-gray-700">
+                  <p className="text-[9px] text-gray-500 uppercase font-bold">{t(labelKey)}</p>
                   <p className={`text-xs font-black mt-0.5 ${cls}`}>{val}</p>
                 </div>
               ))}
@@ -333,7 +335,7 @@ export default function HomePage() {
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
             <div className="flex items-center gap-1.5 mb-3">
               <Newspaper className="w-3.5 h-3.5 text-gray-400" />
-              <h3 className="text-xs font-bold text-gray-200 uppercase">ASEAN Focus</h3>
+              <h3 className="text-xs font-bold text-gray-200 uppercase">{t("home.aseanFocus")}</h3>
             </div>
             <div className="space-y-2">
               {[

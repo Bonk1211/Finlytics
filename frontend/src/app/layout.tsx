@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_SC, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/components/topnav";
+import { LanguageProvider } from "@/lib/language-context";
 
 const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+
+const notoSC = Noto_Sans_SC({
+  variable: "--font-noto-sc",
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "900"],
+});
+
+const notoThai = Noto_Sans_Thai({
+  variable: "--font-noto-thai",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -21,11 +34,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
-        <TopNav />
-        <main className="main-content">
-          {children}
-        </main>
+      <body className={`${inter.variable} ${notoSC.variable} ${notoThai.variable} antialiased`}>
+        <LanguageProvider>
+          <TopNav />
+          <main className="main-content">
+            {children}
+          </main>
+        </LanguageProvider>
       </body>
     </html>
   );
