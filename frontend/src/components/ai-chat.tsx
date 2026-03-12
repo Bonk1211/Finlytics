@@ -4,23 +4,28 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Bot, Sparkles, FileText, TrendingUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useLanguage } from "@/lib/language-context";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-const QUICK_ACTIONS = [
-  { label: "Check my credit score", icon: Sparkles, bg: "var(--color-ai-mint)" },
-  { label: "Trade compliance help", icon: FileText, bg: "var(--color-ai-lavender)" },
-  { label: "Market forecast", icon: TrendingUp, bg: "var(--color-primary-light)" },
-];
+const LOCALE_INSTRUCTIONS: Record<string, string> = {
+  en: "",
+  ms: "Please respond in Bahasa Melayu. ",
+  id: "Please respond in Bahasa Indonesia. ",
+  th: "Please respond in Thai (ภาษาไทย). ",
+  vi: "Please respond in Vietnamese (Tiếng Việt). ",
+  zh: "Please respond in Chinese (中文). ",
+};
 
 export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { locale, t } = useLanguage();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,24 +44,25 @@ export default function AIChat() {
     setIsLoading(true);
 
     try {
+      const prefix = LOCALE_INSTRUCTIONS[locale] || "";
       const res = await fetch("http://localhost:8000/api/chatbot/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: prefix + userMessage }),
       });
       const data = await res.json();
-      
+
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: data.response || "Sorry, I couldn't process that right now.",
+          content: data.response || t("aiChat.fallback"),
         },
       ]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Error: Unable to connect to the backend AI service." },
+        { role: "assistant", content: t("aiChat.errorConnect") },
       ]);
     }
     setIsLoading(false);
@@ -65,6 +71,12 @@ export default function AIChat() {
   const handleQuickAction = (label: string) => {
     setInput(label);
   };
+
+  const QUICK_ACTIONS = [
+    { labelKey: "aiChat.quick.credit", icon: Sparkles, bg: "var(--color-ai-mint)" },
+    { labelKey: "aiChat.quick.trade", icon: FileText, bg: "var(--color-ai-lavender)" },
+    { labelKey: "aiChat.quick.market", icon: TrendingUp, bg: "var(--color-primary-light)" },
+  ];
 
   return (
     <div className="card flex flex-col" style={{ height: "100%" }}>
@@ -77,10 +89,10 @@ export default function AIChat() {
         </div>
         <div>
           <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-            AI Assistant
+            {t("aiChat.title")}
           </h3>
           <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
-            Powered by Gemini
+            {t("aiChat.subtitle")}
           </p>
         </div>
       </div>
@@ -97,19 +109,19 @@ export default function AIChat() {
               className="text-sm text-center"
               style={{ color: "var(--text-tertiary)" }}
             >
-              Ask me anything about your ASEAN business
+              {t("aiChat.empty")}
             </p>
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2 justify-center">
-              {QUICK_ACTIONS.map(({ label, icon: Icon, bg }) => (
+              {QUICK_ACTIONS.map(({ labelKey, icon: Icon, bg }) => (
                 <button
-                  key={label}
-                  onClick={() => handleQuickAction(label)}
+                  key={labelKey}
+                  onClick={() => handleQuickAction(t(labelKey))}
                   className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition hover:opacity-80"
                   style={{ background: bg, color: "var(--text-primary)" }}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  {label}
+                  {t(labelKey)}
                 </button>
               ))}
             </div>
@@ -167,7 +179,7 @@ export default function AIChat() {
               style={{ background: "var(--bg-app)", color: "var(--text-tertiary)" }}
             >
               <span className="animate-pulse flex gap-1 items-center">
-                <Bot className="w-3.5 h-3.5"/> Processing...
+                <Bot className="w-3.5 h-3.5"/> {t("aiChat.processing")}
               </span>
             </div>
           </div>
@@ -181,7 +193,7 @@ export default function AIChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Ask AI anything..."
+          placeholder={t("aiChat.placeholder")}
           disabled={isLoading}
         />
         <button className="ai-send-btn" onClick={handleSend} disabled={isLoading}>

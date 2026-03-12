@@ -11,67 +11,69 @@ import {
   FileText,
   Languages,
 } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-const AI_CAPABILITIES = [
-  {
-    title: "Credit Assessment",
-    description: "Evaluate your business creditworthiness using alternative data",
-    icon: CreditCard,
-    bg: "var(--color-success-light)",
-    color: "var(--color-success)",
-    prompt: "Assess my business credit score based on my recent sales data",
-  },
-  {
-    title: "Trade Compliance",
-    description: "Navigate ASEAN cross-border regulations and documentation",
-    icon: Globe,
-    bg: "var(--color-primary-light)",
-    color: "var(--color-primary)",
-    prompt: "What documents do I need to export goods from Malaysia to Singapore?",
-  },
-  {
-    title: "Market Forecast",
-    description: "Get AI-powered demand predictions and pricing suggestions",
-    icon: TrendingUp,
-    bg: "var(--color-warning-light)",
-    color: "var(--color-warning)",
-    prompt: "What is the demand forecast for electronics in ASEAN Q2 2026?",
-  },
-  {
-    title: "Document Generation",
-    description: "Auto-generate compliance documents and invoices",
-    icon: FileText,
-    bg: "var(--color-ai-lavender)",
-    color: "var(--color-ai-purple)",
-    prompt: "Generate a Certificate of Origin for my shipment to Thailand",
-  },
-  {
-    title: "Translation",
-    description: "Translate business documents across ASEAN languages",
-    icon: Languages,
-    bg: "var(--color-ai-mint)",
-    color: "var(--color-success)",
-    prompt: "Translate my product description to Bahasa Indonesia",
-  },
-  {
-    title: "Business Insights",
-    description: "Get personalized recommendations for your MSME",
-    icon: Sparkles,
-    bg: "var(--color-danger-light)",
-    color: "var(--color-danger)",
-    prompt: "Give me actionable insights to grow my business in ASEAN",
-  },
-];
-
 export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLanguage();
+
+  const AI_CAPABILITIES = [
+    {
+      titleKey: "ai.cap.credit.title",
+      descKey: "ai.cap.credit.desc",
+      icon: CreditCard,
+      bg: "var(--color-success-light)",
+      color: "var(--color-success)",
+      prompt: "Assess my business credit score based on my recent sales data",
+    },
+    {
+      titleKey: "ai.cap.trade.title",
+      descKey: "ai.cap.trade.desc",
+      icon: Globe,
+      bg: "var(--color-primary-light)",
+      color: "var(--color-primary)",
+      prompt: "What documents do I need to export goods from Malaysia to Singapore?",
+    },
+    {
+      titleKey: "ai.cap.market.title",
+      descKey: "ai.cap.market.desc",
+      icon: TrendingUp,
+      bg: "var(--color-warning-light)",
+      color: "var(--color-warning)",
+      prompt: "What is the demand forecast for electronics in ASEAN Q2 2026?",
+    },
+    {
+      titleKey: "ai.cap.doc.title",
+      descKey: "ai.cap.doc.desc",
+      icon: FileText,
+      bg: "var(--color-ai-lavender)",
+      color: "var(--color-ai-purple)",
+      prompt: "Generate a Certificate of Origin for my shipment to Thailand",
+    },
+    {
+      titleKey: "ai.cap.translate.title",
+      descKey: "ai.cap.translate.desc",
+      icon: Languages,
+      bg: "var(--color-ai-mint)",
+      color: "var(--color-success)",
+      prompt: "Translate my product description to Bahasa Indonesia",
+    },
+    {
+      titleKey: "ai.cap.insights.title",
+      descKey: "ai.cap.insights.desc",
+      icon: Sparkles,
+      bg: "var(--color-danger-light)",
+      color: "var(--color-danger)",
+      prompt: "Give me actionable insights to grow my business in ASEAN",
+    },
+  ];
 
   const handleSend = async (text?: string) => {
     const content = (text || input).trim();
@@ -96,15 +98,15 @@ export default function AIPage() {
   };
 
   return (
-    <div className="flex gap-5 h-[calc(100vh-48px)]">
+    <div className="flex gap-5 h-[calc(100vh-72px)]">
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         <div className="mb-4">
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
-            AI Assistant
+            {t("ai.title")}
           </h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-            Your intelligent ASEAN business companion powered by Gemini
+            {t("ai.subtitle")}
           </p>
         </div>
 
@@ -126,14 +128,13 @@ export default function AIPage() {
                   className="text-lg font-semibold"
                   style={{ color: "var(--text-primary)" }}
                 >
-                  How can I help your business today?
+                  {t("ai.emptyTitle")}
                 </h2>
                 <p
                   className="text-sm mt-1 text-center max-w-md"
                   style={{ color: "var(--text-tertiary)" }}
                 >
-                  Ask me about credit scoring, trade regulations, market forecasts, or
-                  anything related to growing your MSME in ASEAN.
+                  {t("ai.emptyDesc")}
                 </p>
               </div>
             ) : (
@@ -188,7 +189,7 @@ export default function AIPage() {
                     color: "var(--text-tertiary)",
                   }}
                 >
-                  <span className="animate-pulse">Thinking...</span>
+                  <span className="animate-pulse">{t("ai.thinking")}</span>
                 </div>
               </div>
             )}
@@ -200,7 +201,7 @@ export default function AIPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Ask AI anything about your ASEAN business..."
+              placeholder={t("ai.placeholder")}
               disabled={isLoading}
               className="flex-1"
             />
@@ -221,11 +222,11 @@ export default function AIPage() {
           className="text-xs font-semibold uppercase tracking-wider mb-3"
           style={{ color: "var(--text-tertiary)" }}
         >
-          AI Capabilities
+          {t("ai.capabilities")}
         </p>
-        {AI_CAPABILITIES.map(({ title, description, icon: Icon, bg, color, prompt }) => (
+        {AI_CAPABILITIES.map(({ titleKey, descKey, icon: Icon, bg, color, prompt }) => (
           <button
-            key={title}
+            key={titleKey}
             onClick={() => handleSend(prompt)}
             className="card w-full text-left transition hover:translate-y-[-2px]"
             style={{ padding: "16px" }}
@@ -240,10 +241,10 @@ export default function AIPage() {
               className="text-sm font-semibold"
               style={{ color: "var(--text-primary)" }}
             >
-              {title}
+              {t(titleKey)}
             </p>
             <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>
-              {description}
+              {t(descKey)}
             </p>
           </button>
         ))}

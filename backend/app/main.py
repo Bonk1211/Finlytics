@@ -2,10 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
 from app.routers import health, trade_ai, document_ai, translation, inventory, credit, market, supply_chain, dashboard, mcp, chatbot
 
-load_dotenv()
+# Always load backend/.env no matter the current working directory.
+ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(dotenv_path=ENV_PATH)
 
 app = FastAPI(
     title="BorneoHack MSME Trade AI",

@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -34,7 +35,8 @@ class Settings(BaseSettings):
     enable_credit: bool = True
     enable_market: bool = True
 
-    model_config = {"env_file": ".env", "extra": "ignore"}
+    _ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
+    model_config = {"env_file": str(_ENV_FILE), "extra": "ignore"}
 
 
 @lru_cache()

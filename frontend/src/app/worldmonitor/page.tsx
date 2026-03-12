@@ -118,7 +118,7 @@ export default function WorldMonitorAdvancedPage() {
   };
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-80px)] bg-[#F8FAFC] rounded-[20px] overflow-hidden border border-gray-200 shadow-sm flex flex-col font-sans p-4 gap-4">
+    <div className="relative w-full min-h-[calc(100vh-67px)] bg-[#F8FAFC] rounded-[20px] overflow-hidden border border-gray-200 shadow-sm flex flex-col font-sans p-4 gap-4">
       
       {/* Header */}
       <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
