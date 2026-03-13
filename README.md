@@ -257,6 +257,12 @@ Built with ❤️ for the **BorneoHack Hackathon** 🏆
 
 ---
 
+## 🎥 Demo Video Link
+
+https://drive.google.com/file/d/1lJO3Bpwct4cWzprqfkGMhjadmW7-dFuZ/view?usp=sharing
+
+---
+
 ## 📄 License
 
 This project is for hackathon demonstration purposes.
