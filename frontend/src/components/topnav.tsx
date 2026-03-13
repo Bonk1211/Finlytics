@@ -14,10 +14,12 @@ import {
   X,
   Waves,
   ChevronDown,
+  Cpu,
 } from "lucide-react";
 import clsx from "clsx";
 import AIChat from "./ai-chat";
 import { useLanguage, SUPPORTED_LOCALES, type Locale } from "@/lib/language-context";
+import { useAppMode } from "@/lib/mode-context";
 
 const NAV_ITEMS = [
   { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
@@ -34,8 +36,7 @@ export default function TopNav() {
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const { locale, setLocale, t } = useLanguage();
-
-  const isHome = pathname === "/";
+  const { mode } = useAppMode();
 
   // Close lang dropdown on outside click
   useEffect(() => {
@@ -48,85 +49,79 @@ export default function TopNav() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Hide entirely in AI mode or if on AI page
+  if (mode === "ai" || pathname === "/ai") return null;
+
   const currentLocale = SUPPORTED_LOCALES.find((l) => l.code === locale)!;
+  const isHome = pathname === "/";
 
   return (
     <>
-      {/* ── Top Navigation Bar ── */}
       <nav
         className={clsx(
-          "fixed top-0 left-0 right-0 z-50 h-[60px] flex items-center px-4 gap-3",
+          "fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-8 gap-8 transition-all",
           isHome
-            ? "bg-black/70 backdrop-blur-md border-b border-white/10"
-            : "bg-white border-b border-gray-100 shadow-sm"
+            ? "bg-black/10 backdrop-blur-md border-b border-white/5"
+            : "bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm"
         )}
       >
-        {/* Brand + Chatbot CTA (biggest element) */}
-        <button
-          onClick={() => setChatOpen(true)}
-          className={clsx(
-            "flex items-center gap-2.5 px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200 mr-2",
-            "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30",
-            "hover:from-emerald-400 hover:to-teal-400 hover:scale-105 active:scale-100",
-            "shrink-0"
-          )}
-        >
-          {/* Logo mark */}
-          <div className="relative">
-            <Waves className="w-5 h-5" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white rounded-full animate-pulse" />
+        {/* Simple Brand */}
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+            <Waves className="w-5 h-5 text-white" />
           </div>
-          <span className="text-base font-black tracking-tight">Finlytics</span>
-          <MessageSquare className="w-4 h-4 opacity-80 ml-0.5" />
-        </button>
+          <span className={clsx(
+            "text-lg font-black tracking-tighter",
+            isHome ? "text-white" : "text-gray-900"
+          )}>
+            Finlytics
+          </span>
+        </Link>
 
-        {/* Divider */}
-        <div className={clsx("w-px h-6 mx-1 shrink-0", isHome ? "bg-white/20" : "bg-gray-200")} />
-
-        {/* Nav links */}
-        <div className="flex items-center gap-0.5 flex-1 overflow-x-auto hide-scrollbar">
-          {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
+        {/* Minimal Nav links */}
+        <div className="flex items-center gap-1">
+          {NAV_ITEMS.slice(0, 4).map(({ href, labelKey, icon: Icon }) => {
             const active = pathname === href;
             return (
               <Link
                 key={href}
                 href={href}
                 className={clsx(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150",
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-bold transition-all whitespace-nowrap",
                   active
                     ? isHome
-                      ? "bg-white/15 text-white"
-                      : "bg-emerald-50 text-emerald-600"
+                      ? "bg-white/20 text-white"
+                      : "bg-gray-900 text-white"
                     : isHome
                     ? "text-white/60 hover:text-white hover:bg-white/10"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                 )}
               >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
                 {t(labelKey)}
               </Link>
             );
           })}
         </div>
 
+        <div className="flex-1" />
+
         {/* Language Switcher */}
-        <div className="relative shrink-0" ref={langRef}>
+        <div className="relative" ref={langRef}>
           <button
             onClick={() => setLangOpen((v) => !v)}
             className={clsx(
-              "flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors",
+              "flex items-center gap-2 text-[11px] font-black uppercase tracking-widest px-4 py-2 rounded-full transition-all border",
               isHome
-                ? "text-white/70 hover:text-white hover:bg-white/10"
-                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                ? "text-white/70 border-white/10 hover:border-white/30 hover:bg-white/5"
+                : "text-gray-500 border-gray-100 hover:border-gray-200 hover:bg-gray-50"
             )}
           >
-            <Globe className="w-3.5 h-3.5" />
-            <span>{currentLocale.flag} {locale.toUpperCase()}</span>
-            <ChevronDown className="w-3 h-3" />
+            <span>{currentLocale.code}</span>
+            <ChevronDown className="w-3 h-3 opacity-50" />
           </button>
 
           {langOpen && (
-            <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-gray-200 py-1 min-w-[180px] z-[80]">
+            <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 min-w-[200px] z-[80] animate-in fade-in slide-in-from-top-2 duration-200">
               {SUPPORTED_LOCALES.map((l) => (
                 <button
                   key={l.code}
@@ -135,16 +130,16 @@ export default function TopNav() {
                     setLangOpen(false);
                   }}
                   className={clsx(
-                    "w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors text-left",
+                    "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-colors text-left",
                     locale === l.code
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-gray-50 text-emerald-600"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   )}
                 >
-                  <span className="text-base">{l.flag}</span>
+                  <span className="text-lg">{l.flag}</span>
                   <span>{l.nativeLabel}</span>
                   {locale === l.code && (
-                    <span className="ml-auto text-emerald-500 text-xs font-bold">&#10003;</span>
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   )}
                 </button>
               ))}
@@ -152,66 +147,54 @@ export default function TopNav() {
           )}
         </div>
 
-        {/* Right side tag */}
-        <div className={clsx("text-[10px] font-bold uppercase tracking-widest shrink-0 px-2 py-1 rounded-md", isHome ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : "text-emerald-600 bg-emerald-50 border border-emerald-100")}>
-          {t("nav.badge")}
-        </div>
+        <button
+          onClick={() => setChatOpen(true)}
+          className={clsx(
+            "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all border",
+            isHome
+              ? "text-white border-white/25 hover:bg-white/10"
+              : "text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100"
+          )}
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          AI Chat
+        </button>
       </nav>
 
-      {/* ── Finlytics AI Chat Panel ── */}
-      {/* Backdrop */}
+      {/* ── Finlytics AI Chat Drawer (Only in manual mode) ── */}
       {chatOpen && (
         <div
-          className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] bg-white/70 backdrop-blur-sm animate-in fade-in duration-300"
           onClick={() => setChatOpen(false)}
         />
       )}
 
-      {/* Chat drawer */}
       <div
         className={clsx(
-          "fixed top-0 right-0 h-full w-[520px] z-[70] bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-in-out flex flex-col",
+          "fixed top-0 right-0 h-full w-[480px] z-[70] bg-gradient-to-b from-white to-slate-50 shadow-2xl transition-transform duration-500 ease-in-out flex flex-col border-l border-slate-100",
           chatOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        {/* Chat Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-500 to-teal-500">
-          <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <Waves className="w-6 h-6 text-white" />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white rounded-full animate-pulse" />
-            </div>
-            <div>
-              <h2 className="text-lg font-black text-white leading-tight">{t("chat.title")}</h2>
-              <p className="text-[11px] text-emerald-100 font-medium">{t("chat.subtitle")}</p>
-            </div>
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-white/90">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-xl bg-emerald-100 ring-1 ring-emerald-200/70 flex items-center justify-center">
+                <Cpu className="w-5 h-5 text-emerald-600" />
+             </div>
+             <div>
+               <h2 className="text-lg font-black tracking-tight">Finlytics Assistant</h2>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enterprise Support</p>
+             </div>
           </div>
           <button
             onClick={() => setChatOpen(false)}
-            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
 
-        {/* Capability pills */}
-        <div className="flex gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50 overflow-x-auto hide-scrollbar">
-          {[
-            t("chat.cap.credit"),
-            t("chat.cap.supply"),
-            t("chat.cap.trade"),
-            t("chat.cap.market"),
-            t("chat.cap.loan"),
-          ].map((cap) => (
-            <span key={cap} className="shrink-0 text-[10px] font-bold bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded-full">
-              {cap}
-            </span>
-          ))}
-        </div>
-
-        {/* Chat Widget */}
-        <div className="flex-1 overflow-hidden p-4 bg-gray-50">
-          <AIChat />
+        <div className="flex-1 overflow-hidden p-5">
+          <AIChat onNavigate={() => setChatOpen(false)} />
         </div>
       </div>
     </>

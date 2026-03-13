@@ -41,14 +41,14 @@ export default function RightChatSidebar() {
 
         {/* Chat Widget Content */}
         <div className="flex-1 overflow-hidden p-4 bg-gray-50">
-          <AIChat />
+          <AIChat onNavigate={() => setIsOpen(false)} />
         </div>
       </div>
 
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[2px] transition-opacity"
+          className="fixed inset-0 z-40 bg-white/70 backdrop-blur-[2px] transition-opacity"
           onClick={() => setIsOpen(false)}
         />
       )}

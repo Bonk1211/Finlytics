@@ -26,6 +26,8 @@ import {
 import clsx from "clsx";
 import { geoCentroid } from "d3-geo";
 import { useLanguage } from "@/lib/language-context";
+import { useAppMode } from "@/lib/mode-context";
+import { useRouter } from "next/navigation";
 
 const geoUrl = "https://unpkg.com/world-atlas@2.0.2/countries-110m.json";
 
@@ -73,6 +75,14 @@ export default function HomePage() {
   const [liveNewsBrief, setLiveNewsBrief] = useState("Fetching latest ASEAN market intelligence...");
   const [globalRisk, setGlobalRisk] = useState(32);
   const { t } = useLanguage();
+  const { mode } = useAppMode();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (mode === "ai") {
+      router.push("/ai");
+    }
+  }, [mode, router]);
 
   const QUICK_LINKS = [
     { href: "/credit-scoring", labelKey: "nav.creditScoring", icon: Building, color: "from-emerald-500 to-teal-500", descKey: "home.getScore" },
@@ -80,6 +90,7 @@ export default function HomePage() {
     { href: "/trade-navigator", labelKey: "nav.tradeNavigator", icon: Globe, color: "from-violet-500 to-purple-500", descKey: "home.crossBorderGuidance" },
     { href: "/dashboard", labelKey: "nav.dashboard", icon: Activity, color: "from-amber-500 to-orange-500", descKey: "home.businessOverview" },
   ];
+
 
   useEffect(() => {
     fetch("https://saurav.tech/NewsAPI/top-headlines/category/business/us.json")
@@ -98,6 +109,8 @@ export default function HomePage() {
     }, 4000);
     return () => clearInterval(iv);
   }, []);
+
+  if (mode === "ai") return null;
 
   return (
     <div className="relative w-full min-h-screen bg-gray-950 flex flex-col font-sans overflow-x-hidden">

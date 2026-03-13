@@ -175,6 +175,7 @@ const en: Record<string, string> = {
   "ai.emptyDesc": "Ask me about credit scoring, trade regulations, market forecasts, or anything related to growing your MSME in ASEAN.",
   "ai.thinking": "Thinking...",
   "ai.placeholder": "Ask AI anything about your ASEAN business...",
+  "ai.switchToManual": "Switch to Manual Mode",
   "ai.capabilities": "AI Capabilities",
   "ai.cap.credit.title": "Credit Assessment",
   "ai.cap.credit.desc": "Evaluate your business creditworthiness using alternative data",
