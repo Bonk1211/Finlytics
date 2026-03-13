@@ -10,9 +10,16 @@ class ChatRequest(BaseModel):
     message: str
     user_id: str = "default_user"
 
+class ToolUsageResponse(BaseModel):
+    tool_name: str
+    agent: str
+    input_summary: str
+    output_summary: str
+
 class ChatResponse(BaseModel):
     response: str
-    
+    tools_used: list[ToolUsageResponse] = []
+
 @router.post("/message", response_model=ChatResponse)
 async def chat_message(request: ChatRequest):
     try:
@@ -58,8 +65,11 @@ Internal Model Context Protocol tools are available for extended platform capabi
 - Always attribute data to its source tool. Never fabricate statistics or financial figures.
 - When presenting numbers: use proper currency notation, commas, and appropriate decimal precision."""
         
-        reply = await run_langgraph_agent(request.message, system_instruction=system_instruction)
-        return ChatResponse(response=reply)
+        result = await run_langgraph_agent(request.message, system_instruction=system_instruction)
+        return ChatResponse(
+            response=result["response"],
+            tools_used=[ToolUsageResponse(**t) for t in result.get("tools_used", [])],
+        )
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

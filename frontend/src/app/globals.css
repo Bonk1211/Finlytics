@@ -331,7 +331,7 @@ body {
 
 .hs-search-input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
 .hs-search-input::placeholder {
@@ -369,7 +369,7 @@ body {
 
 .hs-suggestion-card:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
   transform: translateY(-2px);
 }
 
@@ -435,7 +435,7 @@ body {
 }
 
 @keyframes hs-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2); }
   50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
 }
 

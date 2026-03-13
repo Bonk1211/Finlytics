@@ -372,14 +372,14 @@ export default function DashboardPage() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9ca3af' }} tickFormatter={(val) => `${val}%`} />
                 <RechartsTooltip />
                 <Line type="stepAfter" dataKey="income" stroke="#FBBF24" strokeWidth={2} dot={false} />
-                <Line type="stepAfter" dataKey="expenses" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                <Line type="stepAfter" dataKey="expenses" stroke="#6EE7B7" strokeWidth={2} dot={false} />
                 <Line type="stepAfter" dataKey="profit" stroke="#10B981" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
           <div className="flex items-center justify-center gap-6 mt-4 opacity-80">
             <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-yellow-400"></div> {t("dashboard.totalIncome")}</div>
-            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-blue-500"></div> {t("dashboard.expenses")}</div>
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-emerald-400"></div> {t("dashboard.expenses")}</div>
             <div className="flex items-center gap-2 text-xs font-medium text-gray-600"><div className="w-2 h-2 rounded-full bg-green-500"></div> {t("dashboard.netProfit")}</div>
           </div>
         </div>
@@ -461,10 +461,10 @@ export default function DashboardPage() {
                   </svg>
 
                   {/* Colored Operational Blocks */}
-                  <div className="absolute left-[38%] top-[45%] -translate-y-1/2 w-20 h-7 bg-blue-600 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[38%] top-[45%] -translate-y-1/2 w-20 h-7 bg-emerald-600 rounded-md z-20 shadow-sm"></div>
                   <div className="absolute left-[52%] top-[50%] -translate-y-1/2 w-[70px] h-7 bg-amber-400 rounded-md z-20 shadow-sm"></div>
                   <div className="absolute left-[50%] top-[65%] -translate-y-1/2 w-24 h-[30px] bg-emerald-400 rounded-md z-20 shadow-sm"></div>
-                  <div className="absolute left-[78%] top-[70%] w-3.5 h-[34px] bg-blue-600 rounded-md z-20 shadow-sm"></div>
+                  <div className="absolute left-[78%] top-[70%] w-3.5 h-[34px] bg-emerald-600 rounded-md z-20 shadow-sm"></div>
 
                   {/* Node 2 */}
                   <div className="absolute left-[40%] top-[15%] flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-sm whitespace-nowrap z-20">

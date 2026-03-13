@@ -31,7 +31,7 @@ import { useLanguage } from "@/lib/language-context";
 import { useAppMode } from "@/lib/mode-context";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
-import { sendMessageToChatbot } from "@/lib/api";
+import { sendMessageToChatbot, ToolUsage } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -40,6 +40,7 @@ interface Message {
   content: string;
   type?: "credit" | "trade" | "supply" | "default";
   interactive?: boolean;
+  tools_used?: ToolUsage[];
 }
 
 export default function AIPage() {
@@ -47,8 +48,11 @@ export default function AIPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { setMode } = useAppMode();
+  const { t } = useLanguage();
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const [expandedTools, setExpandedTools] = useState<Record<number, boolean>>({});
 
   const [formState, setFormState] = useState({
     industry: "Retail",
@@ -105,17 +109,18 @@ export default function AIPage() {
     setIsLoading(true);
 
     try {
-      const { response } = await sendMessageToChatbot(content);
-      
+      const { response, tools_used } = await sendMessageToChatbot(content);
+
       const assistantMsg: Message = {
         role: "assistant",
         content: response,
-        type: content.toLowerCase().includes("credit") ? "credit" : 
-              content.toLowerCase().includes("trade") ? "trade" : 
+        type: content.toLowerCase().includes("credit") ? "credit" :
+              content.toLowerCase().includes("trade") ? "trade" :
               content.toLowerCase().includes("supply") ? "supply" : "default",
-        interactive: content.toLowerCase().includes("credit") || 
-                     content.toLowerCase().includes("trade") || 
-                     content.toLowerCase().includes("supply")
+        interactive: content.toLowerCase().includes("credit") ||
+                     content.toLowerCase().includes("trade") ||
+                     content.toLowerCase().includes("supply"),
+        tools_used: tools_used || [],
       };
 
       setMessages([...newMessages, assistantMsg]);
@@ -132,28 +137,28 @@ export default function AIPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] text-[#1a202c] font-openai-chat selection:bg-emerald-500/30">
+    <div className="flex h-screen pt-16 bg-[#F8FAFC] text-[#1a202c] font-openai-chat selection:bg-emerald-500/30">
       {/* Sidebar */}
       <aside className="w-[260px] bg-white border-r border-[#E2E8F0] flex flex-col shrink-0">
         <div className="p-4 space-y-1">
           <button className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#F1F5F9] text-sm font-semibold transition-colors group text-[#64748B] hover:text-[#1a202c]">
             <Plus className="w-4 h-4 text-[#94A3B8] group-hover:text-[#1a202c]" />
-            New thread
+            {t("ai.newThread")}
             <span className="ml-auto text-[10px] text-[#94A3B8] border border-[#E2E8F0] px-1 rounded font-bold">⌘K</span>
           </button>
           <button className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#F1F5F9] text-sm font-semibold transition-colors text-[#64748B] hover:text-[#1a202c]">
             <Command className="w-4 h-4" />
-            Automations
+            {t("ai.automations")}
           </button>
           <button className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#F1F5F9] text-sm font-semibold transition-colors text-[#64748B] hover:text-[#1a202c]">
             <Cpu className="w-4 h-4" />
-            Skills
+            {t("ai.skills")}
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto pt-4">
           <div className="px-4 mb-2 flex items-center justify-between group">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">Threads</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#94A3B8]">{t("ai.threads")}</span>
             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                <Plus className="w-3.5 h-3.5 text-[#94A3B8] cursor-pointer hover:text-[#1a202c]" />
                <Search className="w-3.5 h-3.5 text-[#94A3B8] cursor-pointer hover:text-[#1a202c]" />
@@ -163,7 +168,7 @@ export default function AIPage() {
             {/* Removed Playground link */}
             <div className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-bold bg-[#F1F5F9] text-[#1a202c] border border-transparent relative group">
               <MessageSquare className="w-4 h-4 text-emerald-500" />
-              <span className="truncate pr-8">Active Engine</span>
+              <span className="truncate pr-8">{t("ai.activeEngine")}</span>
             </div>
           </div>
         </div>
@@ -171,14 +176,14 @@ export default function AIPage() {
         <div className="p-4 border-t border-[#E2E8F0] space-y-1">
           <button className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#F1F5F9] text-sm font-semibold transition-colors text-[#64748B]">
             <Settings className="w-4 h-4" />
-            Settings
+            {t("ai.settings")}
           </button>
-          <button 
+          <button
             onClick={handleSwitchToManual}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-emerald-50 text-sm font-bold transition-colors text-emerald-600"
           >
             <Shield className="w-4 h-4" />
-            Manual Dashboard
+            {t("ai.manualDashboard")}
           </button>
         </div>
       </aside>
@@ -186,9 +191,9 @@ export default function AIPage() {
       <div className="flex-1 flex flex-col relative overflow-hidden bg-white">
         <header className="h-12 border-b border-[#E2E8F0] flex items-center px-4 justify-between shrink-0 bg-white/80 backdrop-blur-md sticky top-0 z-10">
           <div className="flex items-center gap-3 text-xs font-bold">
-            <span className="text-[#1a202c]">Finlytics AI</span>
+            <span className="text-[#1a202c]">{t("chat.title")}</span>
             <span className="text-[#CBD5E1]">/</span>
-            <span className="text-[#64748B]">Orchestration</span>
+            <span className="text-[#64748B]">{t("ai.orchestration")}</span>
           </div>
           <div className="flex items-center gap-3">
              {/* Mode badge removed */}
@@ -200,41 +205,41 @@ export default function AIPage() {
             <div className="h-full flex flex-col items-center justify-center pb-48 animate-in fade-in zoom-in-95 duration-1000">
                <div className="text-center mb-10">
                   <h1 className="text-5xl font-bold mb-2 tracking-tight text-[#111827]">
-                    Hello Marcus
+                    {t("ai.greeting")}
                   </h1>
                   <p className="text-2xl font-semibold text-[#64748B] tracking-tight">
-                    How can I help you today?
+                    {t("ai.greetingSub")}
                   </p>
                   <p className="text-[12px] text-[#94A3B8] mt-2 font-normal">
-                    Choose a prompt below or write your own to start
+                    {t("ai.greetingHint")}
                   </p>
                </div>
                
                <div className="grid grid-cols-3 gap-6 w-full max-w-[900px]">
                   {[
-                    { 
-                      id: "news", 
-                      title: "What's Happen in 24 hours?", 
-                      desc: "See what's been happening in the world over the last 24 hours", 
-                      icon: Globe, 
+                    {
+                      id: "news",
+                      titleKey: "ai.card.news.title",
+                      descKey: "ai.card.news.desc",
+                      icon: Globe,
                       prompt: "What are the key trade and business headlines in ASEAN from the last 24 hours?",
-                      color: "from-purple-500 to-pink-500"
+                      color: "from-emerald-500 to-teal-500"
                     },
-                    { 
-                      id: "stocks", 
-                      title: "Stock market update", 
-                      desc: "See what's happening in the stock market in real time", 
-                      icon: TrendingUp, 
+                    {
+                      id: "stocks",
+                      titleKey: "ai.card.stocks.title",
+                      descKey: "ai.card.stocks.desc",
+                      icon: TrendingUp,
                       prompt: "Give me a summary of current stock market performance for key ASEAN indices.",
-                      color: "from-blue-500 to-purple-500"
+                      color: "from-emerald-600 to-cyan-500"
                     },
-                    { 
-                      id: "research", 
-                      title: "Deep economic research", 
-                      desc: "See research from experts that we have simplified", 
-                      icon: FileText, 
+                    {
+                      id: "research",
+                      titleKey: "ai.card.research.title",
+                      descKey: "ai.card.research.desc",
+                      icon: FileText,
                       prompt: "Perform a deep economic analysis on the impact of RCEP for MSMEs in Malaysia.",
-                      color: "from-pink-500 to-orange-500"
+                      color: "from-teal-500 to-emerald-400"
                     }
                   ].map((tool) => (
                     <button
@@ -243,10 +248,10 @@ export default function AIPage() {
                       className="text-left p-6 rounded-[24px] border border-[#E2E8F0] bg-white hover:border-emerald-200 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all group relative overflow-hidden active:scale-[0.98] shadow-sm"
                     >
                       <span className="text-[17px] font-semibold text-[#1a202c] tracking-tight block mb-2 leading-tight">
-                        {tool.title}
+                        {t(tool.titleKey)}
                       </span>
                       <span className="text-[12px] text-[#64748B] font-medium leading-relaxed block">
-                        {tool.desc}
+                        {t(tool.descKey)}
                       </span>
                       
                       <div className={`absolute -bottom-8 -right-8 w-20 h-20 bg-gradient-to-br ${tool.color} blur-[50px] opacity-0 group-hover:opacity-10 transition-opacity`} />
@@ -268,7 +273,7 @@ export default function AIPage() {
                          <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100">
                             <Cpu className="w-4 h-4 text-emerald-600" />
                          </div>
-                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8]">AI Orchestration Engine</span>
+                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8]">{t("ai.engineLabel")}</span>
                       </div>
                       <div className="text-[15px] leading-relaxed text-[#334155] pl-10 font-medium max-w-[800px] markdown-content">
                         <ReactMarkdown 
@@ -307,6 +312,66 @@ export default function AIPage() {
                         </ReactMarkdown>
                       </div>
                       
+                      {/* Tools Used & References Toggle */}
+                      {msg.tools_used && msg.tools_used.length > 0 && (
+                        <div className="ml-10 mt-4 animate-in slide-in-from-bottom-2 duration-500">
+                          <button
+                            onClick={() => setExpandedTools(prev => ({ ...prev, [i]: !prev[i] }))}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] hover:border-emerald-200 transition-all text-left group"
+                          >
+                            <Terminal className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-[11px] font-bold text-[#64748B] group-hover:text-[#1a202c] transition-colors">
+                              {expandedTools[i] ? t("ai.hideTools") : t("ai.showTools")}
+                            </span>
+                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                              {msg.tools_used.length}
+                            </span>
+                            <ChevronDown className={clsx(
+                              "w-3.5 h-3.5 text-[#94A3B8] transition-transform duration-200",
+                              expandedTools[i] && "rotate-180"
+                            )} />
+                          </button>
+
+                          {expandedTools[i] && (
+                            <div className="mt-2 border border-[#E2E8F0] rounded-2xl overflow-hidden bg-white shadow-sm animate-in slide-in-from-top-2 duration-300">
+                              <div className="divide-y divide-[#F1F5F9]">
+                                {msg.tools_used.map((tool, ti) => (
+                                  <div key={ti} className="px-5 py-3 hover:bg-[#FAFBFC] transition-colors">
+                                    <div className="flex items-center gap-3 mb-1.5">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded-md bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                          <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                        </div>
+                                        <code className="text-[12px] font-bold font-mono text-[#1a202c]">
+                                          {tool.tool_name}
+                                        </code>
+                                      </div>
+                                      <span className="text-[9px] font-bold uppercase tracking-wider text-[#94A3B8] bg-[#F1F5F9] px-2 py-0.5 rounded">
+                                        {tool.agent}
+                                      </span>
+                                    </div>
+                                    {tool.input_summary && (
+                                      <div className="ml-7 text-[11px] text-[#64748B] font-mono truncate">
+                                        <span className="text-[#94A3B8]">input:</span> {tool.input_summary}
+                                      </div>
+                                    )}
+                                    <div className="ml-7 mt-1 text-[11px] text-[#64748B] line-clamp-2">
+                                      <span className="text-[#94A3B8]">output:</span> {tool.output_summary}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="px-5 py-2.5 bg-[#FAFBFC] border-t border-[#F1F5F9] flex items-center gap-2">
+                                <Shield className="w-3 h-3 text-[#94A3B8]" />
+                                <span className="text-[9px] text-[#94A3B8] font-medium">
+                                  All tool outputs verified via live API calls — not generated from memory
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {msg.interactive && (
                         <div className="ml-10 mt-4 bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-2xl max-w-[600px] animate-in slide-in-from-bottom-4 duration-700">
                            {/* Context Header */}

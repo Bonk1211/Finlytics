@@ -33,28 +33,28 @@ export default function BusinessVisibilityPage() {
     <div className="flex flex-col h-full w-full p-8 bg-[#F8FAFC]">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <Store className="w-8 h-8 text-orange-500" /> {t("vis.title")}
+          <Store className="w-8 h-8 text-emerald-600" /> {t("vis.title")}
         </h1>
         <p className="text-gray-500 mt-2 text-sm font-medium">{t("vis.subtitle")}</p>
       </div>
 
       <div className="flex-1 flex items-center justify-center">
-        <div className="bg-white rounded-3xl shadow-xl shadow-orange-500/10 border border-gray-100 max-w-4xl w-full flex overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-xl shadow-emerald-500/10 border border-gray-100 max-w-4xl w-full flex overflow-hidden">
 
           {/* Progress Sidebar */}
           <div className="w-64 bg-gray-50 p-6 border-r border-gray-100 flex flex-col justify-between">
              <div>
                <div className="font-bold text-gray-900 mb-8 uppercase tracking-widest text-xs flex items-center gap-2">
-                 <Globe2 className="w-4 h-4 text-orange-500"/> {t("vis.digitalTwin")}
+                 <Globe2 className="w-4 h-4 text-emerald-600"/> {t("vis.digitalTwin")}
                </div>
                <div className="space-y-6">
                  <div className="flex items-center gap-3">
-                    <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", step >= 1 ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-500")}>1</div>
+                    <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", step >= 1 ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-500")}>1</div>
                     <span className={clsx("text-sm font-semibold", step >= 1 ? "text-gray-900" : "text-gray-400")}>{t("vis.basicInfo")}</span>
                  </div>
                  <div className="w-0.5 h-6 bg-gray-200 border-l border-dashed ml-3 -mt-4 -mb-4"></div>
                  <div className="flex items-center gap-3">
-                    <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", step >= 2 ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-500")}>2</div>
+                    <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold", step >= 2 ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-500")}>2</div>
                     <span className={clsx("text-sm font-semibold", step >= 2 ? "text-gray-900" : "text-gray-400")}>{t("vis.storefrontSync")}</span>
                  </div>
                  <div className="w-0.5 h-6 bg-gray-200 border-l border-dashed ml-3 -mt-4 -mb-4"></div>
@@ -82,21 +82,21 @@ export default function BusinessVisibilityPage() {
                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("vis.businessLegalName")}</label>
                      <div className="relative mt-1">
                        <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
-                       <input type="text" placeholder={t("vis.businessNamePlaceholder")} className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-orange-500 focus:border-orange-500 transition-colors bg-gray-50" />
+                       <input type="text" placeholder={t("vis.businessNamePlaceholder")} className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 focus:border-emerald-500 transition-colors bg-gray-50" />
                      </div>
                    </div>
                    <div>
                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("vis.operatingCoords")}</label>
                      <div className="relative mt-1">
                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"/>
-                       <input type="text" placeholder={t("vis.locationPlaceholder")} className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-orange-500 focus:border-orange-500 transition-colors bg-gray-50" />
+                       <input type="text" placeholder={t("vis.locationPlaceholder")} className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 focus:border-emerald-500 transition-colors bg-gray-50" />
                      </div>
                    </div>
                  </div>
 
                  <button
                    onClick={() => setStep(2)}
-                   className="mt-8 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-orange-500/30"
+                   className="mt-8 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-emerald-500/30"
                  >
                    {t("vis.continueBtn")} <ArrowRight className="w-5 h-5 ml-2" />
                  </button>
@@ -109,13 +109,13 @@ export default function BusinessVisibilityPage() {
                  <p className="text-sm text-gray-500 mb-8">{t("vis.captureDesc")}</p>
 
                  <div className="grid grid-cols-2 gap-4 mb-8">
-                    <div className="border border-gray-200 border-dashed rounded-2xl flex flex-col items-center justify-center py-10 bg-gray-50 hover:bg-orange-50 hover:border-orange-200 transition-colors cursor-pointer group">
-                      <Camera className="w-8 h-8 text-gray-400 group-hover:text-orange-500 mb-3" />
+                    <div className="border border-gray-200 border-dashed rounded-2xl flex flex-col items-center justify-center py-10 bg-gray-50 hover:bg-emerald-50 hover:border-emerald-200 transition-colors cursor-pointer group">
+                      <Camera className="w-8 h-8 text-gray-400 group-hover:text-emerald-500 mb-3" />
                       <span className="text-xs font-bold text-gray-600">{t("vis.storefrontPhoto")}</span>
                       <span className="text-[10px] text-gray-400">{t("vis.showsPhysical")}</span>
                     </div>
-                    <div className="border border-gray-200 border-dashed rounded-2xl flex flex-col items-center justify-center py-10 bg-gray-50 hover:bg-orange-50 hover:border-orange-200 transition-colors cursor-pointer group">
-                      <Upload className="w-8 h-8 text-gray-400 group-hover:text-orange-500 mb-3" />
+                    <div className="border border-gray-200 border-dashed rounded-2xl flex flex-col items-center justify-center py-10 bg-gray-50 hover:bg-emerald-50 hover:border-emerald-200 transition-colors cursor-pointer group">
+                      <Upload className="w-8 h-8 text-gray-400 group-hover:text-emerald-500 mb-3" />
                       <span className="text-xs font-bold text-gray-600">{t("vis.businessLicense")}</span>
                       <span className="text-[10px] text-gray-400">{t("vis.pdfOrImage")}</span>
                     </div>
@@ -124,7 +124,7 @@ export default function BusinessVisibilityPage() {
                  <button
                    onClick={completeOnboarding}
                    disabled={isVerifying}
-                   className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-opacity-70 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-orange-500/30"
+                   className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-opacity-70 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-emerald-500/30"
                  >
                    {isVerifying ? (
                      <div className="flex items-center gap-2"><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> {t("vis.aiAnalyzing")}</div>
@@ -144,7 +144,7 @@ export default function BusinessVisibilityPage() {
                  <p className="text-sm text-gray-500 mb-8 max-w-sm">{t("vis.profileCreatedDesc")}</p>
 
                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 w-full max-w-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 blur-2xl rounded-full"></div>
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 blur-2xl rounded-full"></div>
                     <div className="flex items-center gap-4 mb-4 relative z-10 text-left">
                        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-gray-100">
                          <QrCode className="w-6 h-6 text-gray-900" />
@@ -162,7 +162,7 @@ export default function BusinessVisibilityPage() {
 
                  <button
                    onClick={() => setStep(1)}
-                   className="mt-8 text-sm font-bold text-orange-600 hover:text-orange-700 underline"
+                   className="mt-8 text-sm font-bold text-emerald-600 hover:text-emerald-700 underline"
                  >
                    {t("vis.registerAnother")}
                  </button>

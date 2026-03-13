@@ -296,8 +296,15 @@ export const recommendSuppliers = (data: {
     ai_summary: string;
   }>("/supply-chain/recommend-suppliers", { method: "POST", body: JSON.stringify(data) });
 // ── Chatbot ──
+export interface ToolUsage {
+  tool_name: string;
+  agent: string;
+  input_summary: string;
+  output_summary: string;
+}
+
 export const sendMessageToChatbot = (message: string, user_id: string = "default_user") =>
-  request<{ response: string }>("/chatbot/message", {
+  request<{ response: string; tools_used: ToolUsage[] }>("/chatbot/message", {
     method: "POST",
     body: JSON.stringify({ message, user_id }),
   });
