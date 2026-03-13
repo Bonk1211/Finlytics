@@ -251,12 +251,6 @@ Create a `.env` file in `/backend` with:
 
 ---
 
-## 👥 Team
-
-Built with ❤️ for the **BorneoHack Hackathon** 🏆
-
----
-
 ## 🎥 Demo Video Link
 
 https://drive.google.com/file/d/1lJO3Bpwct4cWzprqfkGMhjadmW7-dFuZ/view?usp=sharing
