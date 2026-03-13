@@ -48,17 +48,17 @@ const ASEAN_MARKERS = [
 ];
 
 const NEWS_STREAMS: Record<string, string> = {
-  "CNA": "https://www.youtube.com/embed/V_WDXMHegIM?autoplay=1&mute=1",
-  "ALJAZEERA": "https://www.youtube.com/embed/gCNeDWCI0vo?autoplay=1&mute=1",
-  "SKYNEWS": "https://www.youtube.com/embed/9Auq9mYxFEE?autoplay=1&mute=1",
-  "DW NEWS": "https://www.youtube.com/embed/vOewpmHXTQE?autoplay=1&mute=1",
+  "CNA": "https://www.youtube.com/embed/live_stream?channel=UC83jt4dlz1Gjl58fzQrrKZg&autoplay=1&mute=1",
+  "ALJAZEERA": "https://www.youtube.com/embed/live_stream?channel=UCNye-wNBqNL5ZzHSJj3l8Bg&autoplay=1&mute=1",
+  "SKYNEWS": "https://www.youtube.com/embed/XOacA3RYrXk?autoplay=1&mute=1",
+  "DW NEWS": "https://www.youtube.com/embed/live_stream?channel=UCknLrEdhRCp1aegoMqRaCZg&autoplay=1&mute=1",
 };
 
 const ASEAN_WEBCAMS = [
-  { name: "KUALA LUMPUR", url: "https://www.youtube.com/embed/gCNeDWCI0vo?autoplay=1&mute=1&controls=0", country: "MY" },
-  { name: "SINGAPORE", url: "https://www.youtube.com/embed/5O1nZ6sY35U?autoplay=1&mute=1&controls=0", country: "SG" },
-  { name: "BANGKOK", url: "https://www.youtube.com/embed/TzB4fH1zXQ4?autoplay=1&mute=1&controls=0", country: "TH" },
-  { name: "JAKARTA", url: "https://www.youtube.com/embed/oij5xUeB_S4?autoplay=1&mute=1&controls=0", country: "ID" },
+  { name: "KUALA LUMPUR", url: "https://www.youtube.com/embed/3B10dgoSVKg?autoplay=1&mute=1&controls=0", country: "MY" },
+  { name: "SINGAPORE", url: "https://www.youtube.com/embed/BcCLN2oCHb4?autoplay=1&mute=1&controls=0", country: "SG" },
+  { name: "BANGKOK", url: "https://www.youtube.com/embed/UemFRPrl1hk?autoplay=1&mute=1&controls=0", country: "TH" },
+  { name: "JAKARTA", url: "https://www.youtube.com/embed/1gSP8pzV1I0?autoplay=1&mute=1&controls=0", country: "ID" },
 ];
 
 const ASEAN_RISK = [
@@ -86,9 +86,9 @@ export default function HomePage() {
 
   const QUICK_LINKS = [
     { href: "/credit-scoring", labelKey: "nav.creditScoring", icon: Building, color: "from-emerald-500 to-teal-500", descKey: "home.getScore" },
-    { href: "/supply-chain", labelKey: "nav.supplyChain", icon: Package, color: "from-blue-500 to-cyan-500", descKey: "home.optimiseSourcing" },
-    { href: "/trade-navigator", labelKey: "nav.tradeNavigator", icon: Globe, color: "from-violet-500 to-purple-500", descKey: "home.crossBorderGuidance" },
-    { href: "/dashboard", labelKey: "nav.dashboard", icon: Activity, color: "from-amber-500 to-orange-500", descKey: "home.businessOverview" },
+    { href: "/supply-chain", labelKey: "nav.supplyChain", icon: Package, color: "from-emerald-600 to-cyan-500", descKey: "home.optimiseSourcing" },
+    { href: "/trade-navigator", labelKey: "nav.tradeNavigator", icon: Globe, color: "from-teal-500 to-emerald-400", descKey: "home.crossBorderGuidance" },
+    { href: "/dashboard", labelKey: "nav.dashboard", icon: Activity, color: "from-emerald-400 to-lime-400", descKey: "home.businessOverview" },
   ];
 
 
@@ -360,10 +360,10 @@ export default function HomePage() {
                 <div key={title} className="flex items-start gap-2">
                   <span className={clsx(
                     "shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded mt-0.5 uppercase",
-                    tag === "TRADE" ? "bg-blue-500/20 text-blue-300" :
-                    tag === "TECH" ? "bg-violet-500/20 text-violet-300" :
-                    tag === "CREDIT" ? "bg-emerald-500/20 text-emerald-300" :
-                    "bg-amber-500/20 text-amber-300"
+                    tag === "TRADE" ? "bg-emerald-500/20 text-emerald-300" :
+                    tag === "TECH" ? "bg-teal-500/20 text-teal-300" :
+                    tag === "CREDIT" ? "bg-cyan-500/20 text-cyan-300" :
+                    "bg-emerald-400/20 text-emerald-200"
                   )}>{tag}</span>
                   <p className="text-[11px] text-gray-400 font-medium leading-tight">{title}</p>
                 </div>

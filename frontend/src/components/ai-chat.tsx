@@ -99,7 +99,7 @@ export default function AIChat({ onNavigate }: AIChatProps) {
       title: "Open Credit Scoring",
       desc: "Run business scoring and recommendations with one click.",
       icon: Building,
-      className: "from-blue-500 to-indigo-500",
+      className: "from-emerald-500 to-emerald-600",
       onClick: () => handleInterfaceTrigger("/credit-scoring", t("aiChat.quick.credit")),
     },
     {
@@ -107,7 +107,7 @@ export default function AIChat({ onNavigate }: AIChatProps) {
       title: "Open Supply Chain",
       desc: "Find supplier options and route insights quickly.",
       icon: Package,
-      className: "from-indigo-500 to-violet-500",
+      className: "from-emerald-600 to-teal-500",
       onClick: () => handleInterfaceTrigger("/supply-chain", "Help me with supplier recommendations"),
     },
     {
@@ -115,7 +115,7 @@ export default function AIChat({ onNavigate }: AIChatProps) {
       title: "Market Summary",
       desc: "See what is moving across ASEAN markets right now.",
       icon: TrendingUp,
-      className: "from-pink-500 to-orange-400",
+      className: "from-teal-500 to-cyan-500",
       onClick: () => handleQuickAction(t("aiChat.quick.market")),
     },
   ];
@@ -147,7 +147,7 @@ export default function AIChat({ onNavigate }: AIChatProps) {
       <div className="grid grid-cols-2 gap-2 mb-4">
         <button
           onClick={() => handleInterfaceTrigger("/credit-scoring", t("aiChat.quick.credit"))}
-          className="flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50 px-3 py-2 text-left text-xs font-semibold text-blue-800 transition hover:bg-blue-100"
+          className="flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-left text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
         >
           <span className="flex items-center gap-2">
             <Building className="h-3.5 w-3.5" />
@@ -157,7 +157,7 @@ export default function AIChat({ onNavigate }: AIChatProps) {
         </button>
         <button
           onClick={() => handleInterfaceTrigger("/supply-chain", "Help me with supplier recommendations")}
-          className="flex items-center justify-between rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2 text-left text-xs font-semibold text-indigo-800 transition hover:bg-indigo-100"
+          className="flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-left text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
         >
           <span className="flex items-center gap-2">
             <Package className="h-3.5 w-3.5" />

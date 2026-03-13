@@ -129,6 +129,7 @@ const id: Record<string, string> = {
   "credit.norm": "Normal",
   "credit.weight": "Bobot",
   "credit.points": "Poin",
+  "credit.exportPDF": "Ekspor PDF",
   "credit.approveLine": "Setujui Jalur Kredit",
   "credit.connectionError": "Error Koneksi",
   "credit.awaitingTitle": "Menunggu Komputasi AI",

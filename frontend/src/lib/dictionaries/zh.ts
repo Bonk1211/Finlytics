@@ -129,6 +129,7 @@ const zh: Record<string, string> = {
   "credit.norm": "标准化",
   "credit.weight": "权重",
   "credit.points": "得分",
+  "credit.exportPDF": "导出 PDF",
   "credit.approveLine": "批准信用额度",
   "credit.connectionError": "连接错误",
   "credit.awaitingTitle": "等待 AI 计算",

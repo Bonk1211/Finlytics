@@ -67,7 +67,7 @@ export default function SupplyChainPage() {
     <div className="flex flex-col h-full w-full p-8 bg-[#F8FAFC]">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <Package className="w-8 h-8 text-indigo-600" /> {t("supply.title")}
+          <Package className="w-8 h-8 text-emerald-600" /> {t("supply.title")}
         </h1>
         <p className="text-gray-500 mt-2 text-sm font-medium">{t("supply.subtitle")}</p>
       </div>
@@ -77,33 +77,33 @@ export default function SupplyChainPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex-[0.8] flex flex-col gap-5">
            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex justify-between items-center">
              {t("supply.formTitle")}
-             <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-1 rounded">{t("supply.aiProcurement")}</span>
+             <span className="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-1 rounded">{t("supply.aiProcurement")}</span>
            </h2>
 
            <div>
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("supply.productNeeded")}</label>
-              <input type="text" name="product_name" value={formData.product_name} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-indigo-500" />
+              <input type="text" name="product_name" value={formData.product_name} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-emerald-500" />
            </div>
 
            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><ShoppingCart className="w-3 h-3"/> {t("supply.requiredQty")}</label>
-                <input type="number" name="required_quantity" value={formData.required_quantity} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-indigo-500" />
+                <input type="number" name="required_quantity" value={formData.required_quantity} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-emerald-500" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><Clock className="w-3 h-3"/> {t("supply.maxLeadTime")}</label>
-                <input type="number" name="max_lead_time_days" value={formData.max_lead_time_days} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-indigo-500" />
+                <input type="number" name="max_lead_time_days" value={formData.max_lead_time_days} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-emerald-500" />
               </div>
               <div className="col-span-2">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1"><MapPin className="w-3 h-3"/> {t("supply.targetRegion")}</label>
-                <input type="text" name="target_region" value={formData.target_region} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-indigo-500" />
+                <input type="text" name="target_region" value={formData.target_region} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-200 rounded-lg text-sm focus:outline-emerald-500" />
               </div>
            </div>
 
            <button
              onClick={findSuppliers}
              disabled={loading}
-             className="mt-2 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-indigo-500/25"
+             className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center transition-colors shadow-lg shadow-emerald-500/25"
            >
              {loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Search className="w-5 h-5 mr-2" />}
              {loading ? "" : t("supply.analyzeBtn")}
@@ -138,7 +138,13 @@ export default function SupplyChainPage() {
                              <span className="flex items-center gap-1 text-green-600"><TrendingDown className="w-3 h-3"/> Cost: ${rec.unit_cost || rec.estimated_cost || "7.50"}/unit</span>
                           </div>
                         </div>
-                        <button className="bg-white border border-gray-200 text-sm font-bold text-indigo-600 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-50">
+                        <button
+                           onClick={() => {
+                             const supplierName = rec.name || rec.supplier_name || "Regional Supplier";
+                             window.open(`https://www.google.com/search?q=${encodeURIComponent(supplierName)}`, "_blank");
+                           }}
+                           className="bg-white border border-gray-200 text-sm font-bold text-emerald-600 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-50"
+                        >
                            {t("supply.connect")}
                         </button>
                       </div>

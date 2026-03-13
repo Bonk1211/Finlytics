@@ -129,6 +129,7 @@ const ms: Record<string, string> = {
   "credit.norm": "Normal",
   "credit.weight": "Berat",
   "credit.points": "Mata",
+  "credit.exportPDF": "Eksport PDF",
   "credit.approveLine": "Luluskan Talian Kredit",
   "credit.connectionError": "Ralat Sambungan",
   "credit.awaitingTitle": "Menunggu Pengiraan AI",

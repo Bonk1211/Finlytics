@@ -129,6 +129,7 @@ const th: Record<string, string> = {
   "credit.norm": "ค่าปกติ",
   "credit.weight": "น้ำหนัก",
   "credit.points": "คะแนน",
+  "credit.exportPDF": "ส่งออก PDF",
   "credit.approveLine": "อนุมัติวงเงินเครดิต",
   "credit.connectionError": "ข้อผิดพลาดการเชื่อมต่อ",
   "credit.awaitingTitle": "รอการคำนวณ AI",

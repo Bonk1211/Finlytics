@@ -129,6 +129,7 @@ const en: Record<string, string> = {
   "credit.norm": "Norm",
   "credit.weight": "Weight",
   "credit.points": "Points",
+  "credit.exportPDF": "Export PDF",
   "credit.approveLine": "Approve Credit Line",
   "credit.connectionError": "Connection Error",
   "credit.awaitingTitle": "Awaiting AI Computation",

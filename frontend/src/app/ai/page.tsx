@@ -218,7 +218,7 @@ export default function AIPage() {
                       desc: "See what's been happening in the world over the last 24 hours", 
                       icon: Globe, 
                       prompt: "What are the key trade and business headlines in ASEAN from the last 24 hours?",
-                      color: "from-purple-500 to-pink-500"
+                      color: "from-emerald-500 to-teal-500"
                     },
                     { 
                       id: "stocks", 
@@ -226,7 +226,7 @@ export default function AIPage() {
                       desc: "See what's happening in the stock market in real time", 
                       icon: TrendingUp, 
                       prompt: "Give me a summary of current stock market performance for key ASEAN indices.",
-                      color: "from-blue-500 to-purple-500"
+                      color: "from-emerald-600 to-cyan-500"
                     },
                     { 
                       id: "research", 
@@ -234,7 +234,7 @@ export default function AIPage() {
                       desc: "See research from experts that we have simplified", 
                       icon: FileText, 
                       prompt: "Perform a deep economic analysis on the impact of RCEP for MSMEs in Malaysia.",
-                      color: "from-pink-500 to-orange-500"
+                      color: "from-teal-500 to-emerald-400"
                     }
                   ].map((tool) => (
                     <button

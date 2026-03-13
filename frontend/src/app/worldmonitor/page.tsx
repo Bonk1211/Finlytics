@@ -264,7 +264,7 @@ export default function WorldMonitorAdvancedPage() {
                    <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-600"></div> High Alert</div>
                    <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-500"></div> Elevated</div>
                    <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-yellow-400"></div> Monitoring</div>
-                   <div className="flex items-center gap-1"><div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-blue-400"></div> Base</div>
+                   <div className="flex items-center gap-1"><div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-emerald-400"></div> Base</div>
                 </div>
              </div>
           </div>
@@ -352,7 +352,7 @@ export default function WorldMonitorAdvancedPage() {
                    <span className="text-[8px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded uppercase border border-green-200">Live</span>
                 </div>
                 <div className="bg-[#EBF4F6] rounded-xl p-3 border border-gray-100">
-                   <h4 className="text-[10px] font-bold text-blue-800 uppercase mb-1">🌎 WORLD BRIEF</h4>
+                   <h4 className="text-[10px] font-bold text-emerald-800 uppercase mb-1">🌎 WORLD BRIEF</h4>
                    <p className="text-xs text-gray-700 font-medium leading-relaxed">
                      {liveNewsBrief}
                    </p>
@@ -433,9 +433,9 @@ export default function WorldMonitorAdvancedPage() {
                      <div className="text-xs text-green-400 font-bold flex items-center justify-center"><TrendingUp className="w-3 h-3 mr-1"/> STABLE</div>
                    </div>
                 </div>
-                <div className="absolute bottom-4 left-4 right-4 bg-blue-600 rounded-xl p-2 flex items-center justify-between cursor-pointer hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">
+                <div className="absolute bottom-4 left-4 right-4 bg-emerald-600 rounded-xl p-2 flex items-center justify-between cursor-pointer hover:bg-emerald-500 transition shadow-lg shadow-emerald-500/20">
                    <span className="text-xs text-white font-bold ml-2">Join the Discussion</span>
-                   <button className="bg-white text-blue-600 text-[10px] font-bold px-2 py-1 rounded-lg">Open Discussion</button>
+                   <button className="bg-white text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-lg">Open Discussion</button>
                 </div>
             </div>
           </div>

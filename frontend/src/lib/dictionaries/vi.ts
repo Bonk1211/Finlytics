@@ -129,6 +129,7 @@ const vi: Record<string, string> = {
   "credit.norm": "Chuẩn hóa",
   "credit.weight": "Trọng số",
   "credit.points": "Điểm",
+  "credit.exportPDF": "Xuất PDF",
   "credit.approveLine": "Phê duyệt hạn mức tín dụng",
   "credit.connectionError": "Lỗi kết nối",
   "credit.awaitingTitle": "Đang chờ tính toán AI",

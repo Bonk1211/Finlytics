@@ -61,7 +61,7 @@ export default function TopNav() {
         className={clsx(
           "fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-8 gap-8 transition-all",
           isHome
-            ? "bg-black/10 backdrop-blur-md border-b border-white/5"
+            ? "bg-gray-900/80 backdrop-blur-xl border-b border-white/10 shadow-lg"
             : "bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm"
         )}
       >
@@ -93,7 +93,7 @@ export default function TopNav() {
                       ? "bg-white/20 text-white"
                       : "bg-gray-900 text-white"
                     : isHome
-                    ? "text-white/60 hover:text-white hover:bg-white/10"
+                    ? "text-white/80 hover:text-white hover:bg-white/10"
                     : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                 )}
               >

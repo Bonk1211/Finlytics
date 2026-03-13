@@ -79,7 +79,7 @@ export default function TradeNavigatorPage() {
       <div className="mb-6 flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Globe className="w-8 h-8 text-teal-600" /> {t("trade.title")}
+            <Globe className="w-8 h-8 text-emerald-600" /> {t("trade.title")}
           </h1>
           <p className="text-gray-500 mt-2 text-sm font-medium">{t("trade.subtitle")}</p>
         </div>
@@ -101,21 +101,21 @@ export default function TradeNavigatorPage() {
             <div key={i} className={clsx("flex gap-4 max-w-[85%]", msg.role === "user" ? "ml-auto flex-row-reverse" : "")}>
               <div className={clsx(
                 "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm",
-                msg.role === "user" ? "bg-indigo-100 text-indigo-600" : "bg-teal-600 text-white"
+                msg.role === "user" ? "bg-emerald-100 text-emerald-600" : "bg-emerald-600 text-white"
               )}>
                 {msg.role === "user" ? <User className="w-5 h-5"/> : <Bot className="w-5 h-5"/>}
               </div>
               <div className={clsx(
                 "p-4 rounded-2xl text-[15px] leading-relaxed",
                 msg.role === "user"
-                  ? "bg-indigo-600 text-white rounded-tr-none shadow-md"
+                  ? "bg-emerald-600 text-white rounded-tr-none shadow-md"
                   : "bg-gray-50 text-gray-800 border border-gray-100 rounded-tl-none"
               )}>
                 {msg.role === "assistant" ? (
                   <ReactMarkdown
                     components={{
                       p: ({node, ...props}: any) => <p className="mb-2 last:mb-0" {...props} />,
-                      strong: ({node, ...props}: any) => <strong className="font-bold text-teal-900" {...props} />,
+                      strong: ({node, ...props}: any) => <strong className="font-bold text-emerald-900" {...props} />,
                       ul: ({node, ...props}: any) => <ul className="list-disc pl-5 mb-2" {...props} />,
                       ol: ({node, ...props}: any) => <ol className="list-decimal pl-5 mb-2" {...props} />,
                       li: ({node, ...props}: any) => <li className="mb-1" {...props} />
@@ -133,11 +133,11 @@ export default function TradeNavigatorPage() {
           ))}
           {loading && (
             <div className="flex gap-4 max-w-[85%]">
-              <div className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
                 <Bot className="w-5 h-5"/>
               </div>
               <div className="p-4 rounded-2xl bg-gray-50 text-gray-800 border border-gray-100 rounded-tl-none flex items-center gap-2">
-                 <Loader2 className="w-4 h-4 animate-spin text-teal-600" /> {t("trade.analyzing")}
+                 <Loader2 className="w-4 h-4 animate-spin text-emerald-600" /> {t("trade.analyzing")}
               </div>
             </div>
           )}
@@ -149,7 +149,7 @@ export default function TradeNavigatorPage() {
             <button
               key={i}
               onClick={() => setInput(q)}
-              className="text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-100 hover:bg-teal-100 px-3 py-1.5 rounded-full transition-colors inline-flex items-center"
+              className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 px-3 py-1.5 rounded-full transition-colors inline-flex items-center"
             >
               {q} <ChevronRight className="w-3 h-3 ml-1 opacity-50"/>
             </button>
@@ -160,7 +160,7 @@ export default function TradeNavigatorPage() {
         <div className="p-4 bg-white border-t border-gray-100">
            <form
               onSubmit={e => { e.preventDefault(); sendMessage(); }}
-              className="relative flex items-center bg-gray-50 rounded-xl px-2 py-2 border border-gray-200 focus-within:ring-2 focus-within:ring-teal-500/20 focus-within:border-teal-500 transition-all shadow-sm"
+              className="relative flex items-center bg-gray-50 rounded-xl px-2 py-2 border border-gray-200 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all shadow-sm"
            >
              <input
                type="text"
@@ -173,7 +173,7 @@ export default function TradeNavigatorPage() {
              <button
                type="submit"
                disabled={loading || !input.trim()}
-               className="bg-teal-600 hover:bg-teal-700 disabled:bg-gray-300 text-white p-2.5 rounded-lg transition-colors ml-2 shadow-sm"
+               className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white p-2.5 rounded-lg transition-colors ml-2 shadow-sm"
              >
                <Send className="w-4 h-4" />
              </button>
