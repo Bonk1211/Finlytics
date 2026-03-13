@@ -1,12 +1,17 @@
 """LangGraph Multi-Agent Supervisor System for BorneoHack ASEAN Fintech Platform."""
 
 import operator
+import warnings
 from typing import Annotated, TypedDict, Sequence, Literal
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import ToolNode, create_react_agent
 from langgraph.errors import GraphRecursionError
+
+# Suppress LangGraph deprecation warning for create_react_agent
+# (new import path not yet available in installed version)
+warnings.filterwarnings("ignore", message="create_react_agent has been moved")
 from pydantic import BaseModel, Field
 
 from app.config import get_settings
