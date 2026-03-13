@@ -15,7 +15,13 @@ import {
   AlertTriangle,
   ArrowRight,
   Activity,
-  Download
+  Download,
+  X,
+  ShieldCheck,
+  DollarSign,
+  Percent,
+  Clock,
+  FileText
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -25,6 +31,7 @@ import { useLanguage } from "@/lib/language-context";
 export default function CreditScoringPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [showApproveModal, setShowApproveModal] = useState(false);
   const [formData, setFormData] = useState({
     business_name: "PT Bintang Tech",
     monthly_revenue: 25000,
@@ -375,7 +382,10 @@ export default function CreditScoringPage() {
                       >
                         <Download className="w-4 h-4 mr-2" /> {t("credit.exportPDF")}
                       </button>
-                      <button className="text-xs bg-gray-800/80 hover:bg-gray-700/90 text-white font-bold py-3 px-6 rounded-xl flex items-center transition-all border border-gray-700 hover:border-gray-600 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                      <button
+                        onClick={() => setShowApproveModal(true)}
+                        className="text-xs bg-gray-800/80 hover:bg-gray-700/90 text-white font-bold py-3 px-6 rounded-xl flex items-center transition-all border border-gray-700 hover:border-gray-600 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                      >
                         {t("credit.approveLine")} <ArrowRight className="w-4 h-4 ml-2" />
                       </button>
                     </div>
@@ -399,6 +409,118 @@ export default function CreditScoringPage() {
           )}
         </div>
       </div>
+
+      {/* Approve Credit Line Modal */}
+      {showApproveModal && result && !result.error && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowApproveModal(false)} />
+          <div className="relative bg-[#0f172a] rounded-3xl shadow-2xl border border-gray-700/50 w-full max-w-lg mx-4 overflow-hidden animate-in zoom-in-95 duration-300">
+            {/* Modal glow */}
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/20 blur-[80px] rounded-full" />
+            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full" />
+
+            {/* Header */}
+            <div className="relative px-8 pt-8 pb-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                  <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-black text-lg tracking-tight">{t("credit.modalTitle")}</h3>
+                  <p className="text-gray-400 text-xs font-medium">{result.business_name}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowApproveModal(false)} className="p-2 hover:bg-gray-800 rounded-xl transition-colors">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Loan Terms */}
+            <div className="relative px-8 py-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-800/50 border border-gray-700/40 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("credit.maxLoan")}</span>
+                  </div>
+                  <p className="text-2xl font-black text-white tabular-nums">${(result.max_loan_amount ?? 0).toLocaleString()}</p>
+                </div>
+                <div className="bg-gray-800/50 border border-gray-700/40 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Percent className="w-4 h-4 text-blue-400" />
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("credit.interestRate")}</span>
+                  </div>
+                  <p className="text-2xl font-black text-white tabular-nums">{result.suggested_interest_rate || "4.5%"}</p>
+                </div>
+                <div className="bg-gray-800/50 border border-gray-700/40 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-4 h-4 text-amber-400" />
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("credit.creditScore")}</span>
+                  </div>
+                  <p className="text-2xl font-black text-emerald-400 tabular-nums">{result.credit_score}</p>
+                </div>
+                <div className="bg-gray-800/50 border border-gray-700/40 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-4 h-4 text-purple-400" />
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("credit.riskLevel")}</span>
+                  </div>
+                  <p className={clsx("text-2xl font-black tabular-nums",
+                    result.credit_score >= 700 ? "text-emerald-400" : result.credit_score >= 500 ? "text-amber-400" : "text-rose-400"
+                  )}>
+                    {result.risk_tier || result.risk_category || (result.credit_score >= 700 ? "Low" : result.credit_score >= 500 ? "Medium" : "High")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Loan recommendation */}
+              <div className="bg-gray-800/30 border border-gray-700/30 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("credit.loanRecommendation")}</span>
+                </div>
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  {result.loan_recommendation || "Based on the analysis, this business qualifies for a standard trade financing facility."}
+                </p>
+              </div>
+
+              {/* Risk probability bar */}
+              <div className="bg-gray-800/30 border border-gray-700/30 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("credit.riskProbability")}</span>
+                  <span className="text-sm font-black text-white tabular-nums">{((result.risk_probability ?? 0) * 100).toFixed(1)}%</span>
+                </div>
+                <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                  <div
+                    className={clsx("h-full rounded-full transition-all duration-700",
+                      (result.risk_probability ?? 0) <= 0.3 ? "bg-emerald-500" : (result.risk_probability ?? 0) <= 0.6 ? "bg-amber-500" : "bg-rose-500"
+                    )}
+                    style={{ width: `${Math.min(100, (result.risk_probability ?? 0) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="relative px-8 pb-8 pt-2 flex gap-3">
+              <button
+                onClick={() => setShowApproveModal(false)}
+                className="flex-1 text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-3.5 px-6 rounded-xl transition-all border border-gray-700"
+              >
+                {t("credit.modalClose")}
+              </button>
+              <button
+                onClick={() => {
+                  handleExportPDF();
+                  setShowApproveModal(false);
+                }}
+                className="flex-1 text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-[0_8px_30px_rgb(16,185,129,0.25)] flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" /> {t("credit.modalExport")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import operator
 import warnings
 from typing import Annotated, TypedDict, Sequence, Literal
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AIMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, AIMessage, ToolMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import ToolNode, create_react_agent
@@ -236,6 +236,12 @@ def get_llm():
         temperature=0.2
     )
 
+class ToolUsage(TypedDict):
+    tool_name: str
+    agent: str
+    input_summary: str
+    output_summary: str
+
 class AgentState(TypedDict):
     # The list of messages in the conversation
     messages: Annotated[Sequence[BaseMessage], operator.add]
@@ -243,6 +249,8 @@ class AgentState(TypedDict):
     next: str
     # Global instructions from the user/system
     system_instruction: str
+    # Track which tools were used during the workflow
+    tools_used: Annotated[list[ToolUsage], operator.add]
 
 class Route(BaseModel):
     next: Literal["Researcher", "Quant", "FINISH"] = Field(
@@ -426,37 +434,76 @@ def _extract_text(content) -> str:
         return "\n".join(parts)
     return str(content)
 
+def _extract_tool_usage(messages: list, agent_name: str) -> list[ToolUsage]:
+    """Extract tool usage details from sub-agent message history."""
+    usages: list[ToolUsage] = []
+    tool_call_map: dict[str, dict] = {}
+
+    for msg in messages:
+        if isinstance(msg, AIMessage) and hasattr(msg, "tool_calls") and msg.tool_calls:
+            for tc in msg.tool_calls:
+                tool_call_map[tc["id"]] = {
+                    "tool_name": tc["name"],
+                    "args": tc.get("args", {}),
+                }
+        elif isinstance(msg, ToolMessage):
+            tc_id = getattr(msg, "tool_call_id", None)
+            tc_info = tool_call_map.get(tc_id, {})
+            tool_name = tc_info.get("tool_name", msg.name or "unknown")
+            args = tc_info.get("args", {})
+
+            input_summary = ", ".join(f"{k}={v}" for k, v in list(args.items())[:3]) if args else ""
+            output_text = _extract_text(msg.content)
+            output_summary = output_text[:150] + "..." if len(output_text) > 150 else output_text
+
+            usages.append(ToolUsage(
+                tool_name=tool_name,
+                agent=agent_name,
+                input_summary=input_summary[:200],
+                output_summary=output_summary,
+            ))
+    return usages
+
+
 async def research_node(state: AgentState):
     """Worker Agent: Researcher — specializes in web search, news, and market intelligence."""
     llm = get_llm()
     research_tools = [search_web, get_asean_business_news, get_current_date, generate_image, generate_graph, get_asean_tariff_info, text_to_speech_url]
     research_agent = create_react_agent(
-        llm, 
-        tools=research_tools, 
+        llm,
+        tools=research_tools,
         prompt=RESEARCHER_PROMPT
     )
-    
+
     result = await research_agent.ainvoke({"messages": state["messages"]})
     last_message = result["messages"][-1]
     text = _extract_text(last_message.content)
-    
-    return {"messages": [AIMessage(content=f"**Researcher:**\n{text}", name="Researcher")]}
+    tool_usages = _extract_tool_usage(result["messages"], "Researcher")
+
+    return {
+        "messages": [AIMessage(content=f"**Researcher:**\n{text}", name="Researcher")],
+        "tools_used": tool_usages,
+    }
 
 async def quant_node(state: AgentState):
     """Worker Agent: Quant — specializes in calculations, stock prices, and financial modeling."""
     llm = get_llm()
     quant_tools = [calculator, get_stock_price, convert_currency, calculate_loan]
     quant_agent = create_react_agent(
-        llm, 
-        tools=quant_tools, 
+        llm,
+        tools=quant_tools,
         prompt=QUANT_PROMPT
     )
-    
+
     result = await quant_agent.ainvoke({"messages": state["messages"]})
     last_message = result["messages"][-1]
     text = _extract_text(last_message.content)
-    
-    return {"messages": [AIMessage(content=f"**Quant:**\n{text}", name="Quant")]}
+    tool_usages = _extract_tool_usage(result["messages"], "Quant")
+
+    return {
+        "messages": [AIMessage(content=f"**Quant:**\n{text}", name="Quant")],
+        "tools_used": tool_usages,
+    }
 
 # --- Build Graph ---
 builder = StateGraph(AgentState)
@@ -479,37 +526,47 @@ builder.add_conditional_edges(
 builder.add_edge(START, "Supervisor")
 graph = builder.compile()
 
-async def run_langgraph_agent(prompt: str, system_instruction: str = "") -> str:
+class AgentResult(TypedDict):
+    response: str
+    tools_used: list[ToolUsage]
+
+async def run_langgraph_agent(prompt: str, system_instruction: str = "") -> AgentResult:
     """Run the LangGraph LangChain agentic workflow."""
     inputs = {
         "messages": [HumanMessage(content=prompt)],
         "system_instruction": system_instruction,
+        "tools_used": [],
     }
-    
+
     # Run the graph until FINISH is reached.
     # Keep recursion limit above max worker turns to allow full completion when possible.
     try:
         final_state = await graph.ainvoke(inputs, config={"recursion_limit": 40})
     except GraphRecursionError:
-        return (
-            "I could not complete the full multi-agent workflow in time. "
-            "Please try a shorter prompt, or ask for either market research or calculations separately."
+        return AgentResult(
+            response="I could not complete the full multi-agent workflow in time. "
+                     "Please try a shorter prompt, or ask for either market research or calculations separately.",
+            tools_used=[],
         )
-    
+
     final_messages = final_state.get("messages", [])
-    
+    tools_used = final_state.get("tools_used", [])
+
     # We aggregate worker responses to form a cohesive final answer
     worker_responses = []
     # Ignore the first human message
     for msg in final_messages[1:]:
         if isinstance(msg, AIMessage) and msg.name in ["Researcher", "Quant"]:
             worker_responses.append(msg.content)
-            
+
     if not worker_responses:
-        return "I could not generate an answer using the available agents."
-    
+        return AgentResult(
+            response="I could not generate an answer using the available agents.",
+            tools_used=tools_used,
+        )
+
     combined = "\n\n---\n\n".join(worker_responses)
-    
+
     # --- Post-processing: clean up the response ---
     import re
     # Remove agent label prefixes
@@ -521,5 +578,5 @@ async def run_langgraph_agent(prompt: str, system_instruction: str = "") -> str:
     combined = re.sub(r"['\"]?signature['\"]?\s*:\s*['\"].*$", "", combined, flags=re.DOTALL)
     # Remove trailing whitespace and orphaned punctuation
     combined = combined.rstrip(" ,.'\"}\n")
-    
-    return combined.strip()
+
+    return AgentResult(response=combined.strip(), tools_used=tools_used)

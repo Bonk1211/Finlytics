@@ -31,7 +31,7 @@ import { useLanguage } from "@/lib/language-context";
 import { useAppMode } from "@/lib/mode-context";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
-import { sendMessageToChatbot } from "@/lib/api";
+import { sendMessageToChatbot, ToolUsage } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -40,6 +40,7 @@ interface Message {
   content: string;
   type?: "credit" | "trade" | "supply" | "default";
   interactive?: boolean;
+  tools_used?: ToolUsage[];
 }
 
 export default function AIPage() {
@@ -49,6 +50,8 @@ export default function AIPage() {
   const { setMode } = useAppMode();
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const [expandedTools, setExpandedTools] = useState<Record<number, boolean>>({});
 
   const [formState, setFormState] = useState({
     industry: "Retail",
@@ -105,17 +108,18 @@ export default function AIPage() {
     setIsLoading(true);
 
     try {
-      const { response } = await sendMessageToChatbot(content);
-      
+      const { response, tools_used } = await sendMessageToChatbot(content);
+
       const assistantMsg: Message = {
         role: "assistant",
         content: response,
-        type: content.toLowerCase().includes("credit") ? "credit" : 
-              content.toLowerCase().includes("trade") ? "trade" : 
+        type: content.toLowerCase().includes("credit") ? "credit" :
+              content.toLowerCase().includes("trade") ? "trade" :
               content.toLowerCase().includes("supply") ? "supply" : "default",
-        interactive: content.toLowerCase().includes("credit") || 
-                     content.toLowerCase().includes("trade") || 
-                     content.toLowerCase().includes("supply")
+        interactive: content.toLowerCase().includes("credit") ||
+                     content.toLowerCase().includes("trade") ||
+                     content.toLowerCase().includes("supply"),
+        tools_used: tools_used || [],
       };
 
       setMessages([...newMessages, assistantMsg]);
@@ -307,6 +311,66 @@ export default function AIPage() {
                         </ReactMarkdown>
                       </div>
                       
+                      {/* Tools Used & References Toggle */}
+                      {msg.tools_used && msg.tools_used.length > 0 && (
+                        <div className="ml-10 mt-4 animate-in slide-in-from-bottom-2 duration-500">
+                          <button
+                            onClick={() => setExpandedTools(prev => ({ ...prev, [i]: !prev[i] }))}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] hover:border-emerald-200 transition-all text-left group"
+                          >
+                            <Terminal className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-[11px] font-bold text-[#64748B] group-hover:text-[#1a202c] transition-colors">
+                              {expandedTools[i] ? "Hide" : "Show"} tools used
+                            </span>
+                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                              {msg.tools_used.length}
+                            </span>
+                            <ChevronDown className={clsx(
+                              "w-3.5 h-3.5 text-[#94A3B8] transition-transform duration-200",
+                              expandedTools[i] && "rotate-180"
+                            )} />
+                          </button>
+
+                          {expandedTools[i] && (
+                            <div className="mt-2 border border-[#E2E8F0] rounded-2xl overflow-hidden bg-white shadow-sm animate-in slide-in-from-top-2 duration-300">
+                              <div className="divide-y divide-[#F1F5F9]">
+                                {msg.tools_used.map((tool, ti) => (
+                                  <div key={ti} className="px-5 py-3 hover:bg-[#FAFBFC] transition-colors">
+                                    <div className="flex items-center gap-3 mb-1.5">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded-md bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                          <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                        </div>
+                                        <code className="text-[12px] font-bold font-mono text-[#1a202c]">
+                                          {tool.tool_name}
+                                        </code>
+                                      </div>
+                                      <span className="text-[9px] font-bold uppercase tracking-wider text-[#94A3B8] bg-[#F1F5F9] px-2 py-0.5 rounded">
+                                        {tool.agent}
+                                      </span>
+                                    </div>
+                                    {tool.input_summary && (
+                                      <div className="ml-7 text-[11px] text-[#64748B] font-mono truncate">
+                                        <span className="text-[#94A3B8]">input:</span> {tool.input_summary}
+                                      </div>
+                                    )}
+                                    <div className="ml-7 mt-1 text-[11px] text-[#64748B] line-clamp-2">
+                                      <span className="text-[#94A3B8]">output:</span> {tool.output_summary}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="px-5 py-2.5 bg-[#FAFBFC] border-t border-[#F1F5F9] flex items-center gap-2">
+                                <Shield className="w-3 h-3 text-[#94A3B8]" />
+                                <span className="text-[9px] text-[#94A3B8] font-medium">
+                                  All tool outputs verified via live API calls — not generated from memory
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {msg.interactive && (
                         <div className="ml-10 mt-4 bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-2xl max-w-[600px] animate-in slide-in-from-bottom-4 duration-700">
                            {/* Context Header */}
